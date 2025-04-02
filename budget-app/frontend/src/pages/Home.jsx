@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import ItemList from "../components/ItemList";
+import FinancialTable from "../components/table/FinancialTable";
 
 const Home = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -32,11 +30,9 @@ const Home = () => {
 
     return (
         <div className="home">
-            <Header />
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
-            {!loading && !error && <ItemList items={data} />}
-            <Footer />
+            {!loading && !error && <FinancialTable />}
         </div>
     );
 };
