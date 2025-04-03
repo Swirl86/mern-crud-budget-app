@@ -1,5 +1,5 @@
 export const TABLE_TITLES = {
-    INCOME: "INKOMST",
+    INCOMES: "INKOMSTER",
     EXPENSES: "UTGIFTER",
     TOTAL: "Total",
     SUM: "Summa",
@@ -7,6 +7,7 @@ export const TABLE_TITLES = {
     TOTAL_INCOME: "Tot. inkomst",
     TOTAL_EXPENSES: "Tot. utgifter",
     RESULT: "Resultat",
+    SAVINGS: "SPARANDE",
 };
 
 export const TABLE_MONTHS = [
