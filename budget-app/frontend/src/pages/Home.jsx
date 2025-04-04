@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import FinancialTable from "../components/table/FinancialTable";
+import FinancialTable from "../pages/table/FinancialTable";
 
 const Home = () => {
     const apiUrl = import.meta.env.VITE_BUDGET_API_BASE_URL;

@@ -1,7 +1,7 @@
 import { TABLE_TITLES } from "@/constants";
+import MonthRow from "@table/MonthRow";
+import TitleHeader from "@table/TitleHeader";
 import React from "react";
-import MonthRow from "../seperator/MonthRow.jsx";
-import TitleHeader from "../seperator/TitleHeader.jsx";
 
 const IncomeHeader = () => {
     return (

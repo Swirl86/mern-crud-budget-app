@@ -1,9 +1,9 @@
 import React from "react";
 
-const ExpenseRow = ({ row }) => {
+const SavingsRow = ({ row }) => {
     return (
         <tr>
-            <td className="px-4 py-2 border border-gray-300 font-semibold bg-gray-600 text-white">
+            <td className="px-4 py-2 border border-gray-300 font-semibold bg-blue-600 text-white">
                 {row.category}
             </td>
             {Object.entries(row.amounts).map(([_, value], colIndex) => {
@@ -12,7 +12,7 @@ const ExpenseRow = ({ row }) => {
                     <td
                         key={colIndex}
                         className={`px-4 py-2 border border-gray-300 ${
-                            value < 0 ? "text-gray-500" : "text-red-500"
+                            value == 0 ? "text-gray-500" : "text-blue-500"
                         }`}
                     >
                         {formattedValue}
@@ -29,4 +29,4 @@ const ExpenseRow = ({ row }) => {
     );
 };
 
-export default ExpenseRow;
+export default SavingsRow;
