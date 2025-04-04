@@ -1,17 +1,17 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/transactions";
+const BUDGET_API_BASE_URL = import.meta.env.VITE_BUDGET_API_BASE_URL;
 
-export const fetchTransactions = async () => {
-    const response = await axios.get(API_URL);
+export const fetchBudgetItems = async () => {
+    const response = await axios.get(BUDGET_API_BASE_URL);
     return response.data;
 };
 
-export const addTransaction = async (transaction) => {
-    const response = await axios.post(API_URL, transaction);
+export const addBudgetItem = async (budgetItem) => {
+    const response = await axios.post(BUDGET_API_BASE_URL, budgetItem);
     return response.data;
 };
 
-export const deleteTransaction = async (id) => {
-    await axios.delete(`${API_URL}/${id}`);
+export const deleteBudgetItem = async (id) => {
+    await axios.delete(`${BUDGET_API_BASE_URL}/${id}`);
 };

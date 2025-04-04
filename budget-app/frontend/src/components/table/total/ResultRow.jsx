@@ -5,15 +5,15 @@ const ResultRow = ({ incomeData, expensesData, savingsData }) => {
         const monthKey = month.toLowerCase();
 
         const totalIncomeForMonth = incomeData.reduce((sum, income) => {
-            return sum + (income[monthKey] || 0);
+            return sum + (income.amounts[monthKey] || 0);
         }, 0);
 
         const totalExpenseForMonth = expensesData.reduce((sum, expense) => {
-            return sum + (expense[monthKey] || 0);
+            return sum + (expense.amounts[monthKey] || 0);
         }, 0);
 
         const totalSavingsForMonth = savingsData.reduce((sum, saving) => {
-            return sum + (saving[monthKey] || 0);
+            return sum + (saving.amounts[monthKey] || 0);
         }, 0);
 
         const totalExpenditureForMonth = totalExpenseForMonth + totalSavingsForMonth;

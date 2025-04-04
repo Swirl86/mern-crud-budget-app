@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import FinancialTable from "../components/table/FinancialTable";
 
 const Home = () => {
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = import.meta.env.VITE_BUDGET_API_BASE_URL;
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -10,7 +10,7 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${apiUrl}/transactions`);
+                const response = await fetch(apiUrl);
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch data");
@@ -32,7 +32,7 @@ const Home = () => {
         <div className="home">
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
-            {!loading && !error && <FinancialTable />}
+            {!loading && !error && <FinancialTable budgetData={data} />}
         </div>
     );
 };

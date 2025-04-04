@@ -8,10 +8,10 @@ const ExpensesFooter = ({ expensesData }) => {
     }, {});
 
     expensesData.forEach((expense) => {
-        TABLE_MONTHS.forEach((month) => {
+        Object.entries(expense.amounts).forEach(([month, value]) => {
             const monthKey = month.toLowerCase();
-            if (expense[monthKey]) {
-                monthlySums[monthKey] += expense[monthKey];
+            if (monthlySums[monthKey] !== undefined) {
+                monthlySums[monthKey] += value;
             }
         });
     });

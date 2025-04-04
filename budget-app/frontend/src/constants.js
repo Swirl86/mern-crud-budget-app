@@ -6,6 +6,7 @@ export const TABLE_TITLES = {
     OTHER_INCOME: "Övrig inkomst",
     TOTAL_INCOME: "Tot. inkomst",
     TOTAL_EXPENSES: "Tot. utgifter",
+    TOTAL_SAVINGS: "Tot. sparande",
     RESULT: "Resultat",
     SAVINGS: "SPARANDE",
 };
