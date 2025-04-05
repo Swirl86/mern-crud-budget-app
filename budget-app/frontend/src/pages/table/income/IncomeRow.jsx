@@ -1,3 +1,5 @@
+import FormattedRowCell from "@table/FormattedRowCell";
+import FormattedSumCell from "@table/FormattedSumCell";
 import React from "react";
 
 const IncomeRow = ({ row }) => {
@@ -8,26 +10,11 @@ const IncomeRow = ({ row }) => {
                 {row.category}
             </td>
             {/* Monthly data cells */}
-            {Object.entries(row.amounts).map(([month, value], colIndex) => {
-                const formattedValue = new Intl.NumberFormat("sv-SE").format(value);
-                return (
-                    <td
-                        key={colIndex}
-                        className={`px-4 py-2 border border-gray-300 ${
-                            value == 0 ? "text-gray-500" : "text-green-500"
-                        }`}
-                    >
-                        {formattedValue}
-                    </td>
-                );
-            })}
+            {Object.entries(row.amounts).map(([_, value], colIndex) => (
+                <FormattedRowCell key={colIndex} value={value} textColor={"text-green-500"} />
+            ))}
             {/* Total-cell - Calculated and added at the end */}
-            <td className="px-4 py-2 border border-gray-300 font-semibold bg-gray-100">
-                {new Intl.NumberFormat("sv-SE").format(
-                    Object.values(row.amounts).reduce((sum, amount) => sum + amount, 0)
-                )}{" "}
-                Kr
-            </td>
+            <FormattedSumCell amounts={row.amounts} />
         </tr>
     );
 };

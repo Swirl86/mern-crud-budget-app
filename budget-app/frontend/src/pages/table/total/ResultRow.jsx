@@ -1,4 +1,5 @@
 import { TABLE_MONTHS, TABLE_TITLES } from "@/constants";
+import { formatSEK } from "@/utils/format";
 
 const ResultRow = ({ incomeData, expensesData, savingsData }) => {
     const monthlyResults = TABLE_MONTHS.map((month) => {
@@ -24,24 +25,26 @@ const ResultRow = ({ incomeData, expensesData, savingsData }) => {
     const totalResult = monthlyResults.reduce((acc, result) => acc + result, 0);
 
     return (
-        <tr className="bg-gray-200 font-bold">
-            <td className="px-4 py-2 border border-gray-300 font-semibold bg-gray-400">
-                {TABLE_TITLES.RESULT}
-            </td>
-            {monthlyResults.map((result, index) => (
-                <td
-                    key={index}
-                    className={`px-4 py-2 border border-gray-300 ${
-                        result < 0 ? "text-red-500" : "text-green-500"
-                    }`}
-                >
-                    {new Intl.NumberFormat("sv-SE").format(result)}
+        <thead>
+            <tr className="bg-gray-200 font-bold">
+                <td className="px-4 py-2 border border-gray-300 font-semibold bg-gray-400">
+                    {TABLE_TITLES.RESULT}
                 </td>
-            ))}
-            <td className="px-4 py-2 border border-gray-300 font-semibold">
-                {new Intl.NumberFormat("sv-SE").format(totalResult)} Kr
-            </td>
-        </tr>
+                {monthlyResults.map((result, index) => (
+                    <td
+                        key={index}
+                        className={`px-4 py-2 border border-gray-300 ${
+                            result < 0 ? "text-red-500" : "text-green-500"
+                        }`}
+                    >
+                        {formatSEK(result)}
+                    </td>
+                ))}
+                <td className="px-4 py-2 border border-gray-300 font-semibold">
+                    {formatSEK(totalResult)} Kr
+                </td>
+            </tr>
+        </thead>
     );
 };
 
