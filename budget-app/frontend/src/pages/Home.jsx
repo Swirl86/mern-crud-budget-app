@@ -1,37 +1,14 @@
-import React, { useEffect, useState } from "react";
+import useBudgetData from "@/hooks/useBudgetData";
+import React from "react";
 import FinancialTable from "../pages/table/FinancialTable";
 
 const Home = () => {
-    const apiUrl = import.meta.env.VITE_BUDGET_API_BASE_URL;
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(apiUrl);
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch data");
-                }
-
-                const data = await response.json();
-                setData(data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
+    const { data, loading, error } = useBudgetData();
 
     return (
         <div className="home">
-            {loading && <p>Loading...</p>}
-            {error && <p>Error: {error}</p>}
+            {loading && <p>Laddar...</p>}
+            {error && <p className="text-red-500">Fel: {error}</p>}
             {!loading && !error && <FinancialTable budgetData={data} />}
         </div>
     );
