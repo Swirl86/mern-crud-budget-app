@@ -1,4 +1,4 @@
-import { formatSEK } from "@/utils/format";
+import { formatSEK } from "@utils/format";
 
 const FormattedSumCell = ({ amounts }) => {
     const total = Object.values(amounts).reduce((sum, amount) => sum + amount, 0);

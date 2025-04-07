@@ -1,4 +1,4 @@
-import { formatSEK } from "@/utils/format";
+import { formatSEK } from "@utils/format";
 
 const FormattedRowCell = ({ value, textColor }) => {
     const formattedValue = formatSEK(value);

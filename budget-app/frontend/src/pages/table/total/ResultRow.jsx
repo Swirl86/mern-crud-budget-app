@@ -1,5 +1,5 @@
 import { TABLE_MONTHS, TABLE_TITLES } from "@/constants";
-import { formatSEK } from "@/utils/format";
+import { formatSEK } from "@utils/format";
 
 const ResultRow = ({ incomeData, expensesData, savingsData }) => {
     const monthlyResults = TABLE_MONTHS.map((month) => {

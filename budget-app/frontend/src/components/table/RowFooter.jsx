@@ -1,5 +1,5 @@
 import { TABLE_MONTHS } from "@/constants";
-import { formatSEK } from "@/utils/format";
+import { formatSEK } from "@utils/format";
 import React from "react";
 
 const RowFooter = ({ title, data, positiveColor }) => {

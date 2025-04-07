@@ -1,4 +1,4 @@
-import { fetchBudgetItems } from "@/services/api";
+import { fetchBudgetItems } from "@services/api";
 import { useEffect, useState } from "react";
 
 const useBudgetData = () => {

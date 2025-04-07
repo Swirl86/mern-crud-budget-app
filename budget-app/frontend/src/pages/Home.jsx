@@ -1,4 +1,6 @@
-import useBudgetData from "@/hooks/useBudgetData";
+import useBudgetData from "@hooks/useBudgetData";
+import ErrorMessage from "@ui/ErrorMessage";
+import LoadingIndicator from "@ui/LoadingIndicator";
 import React from "react";
 import FinancialTable from "../pages/table/FinancialTable";
 
@@ -7,8 +9,8 @@ const Home = () => {
 
     return (
         <div className="home">
-            {loading && <p>Laddar...</p>}
-            {error && <p className="text-red-500">Fel: {error}</p>}
+            {loading && <LoadingIndicator />}
+            {error && <ErrorMessage message={error} />}
             {!loading && !error && <FinancialTable budgetData={data} />}
         </div>
     );
