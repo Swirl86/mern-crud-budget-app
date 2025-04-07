@@ -1,7 +1,7 @@
 import { fetchBudgetItems } from "@services/api";
 import { useEffect, useState } from "react";
 
-const useBudgetData = () => {
+const useFetchBudgetItems = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ const useBudgetData = () => {
                 const result = await fetchBudgetItems();
                 setData(result);
             } catch (err) {
-                setError(err.message);
+                setError(`Could not fetch budget data: ${err.message}`);
             } finally {
                 setLoading(false);
             }
@@ -21,7 +21,7 @@ const useBudgetData = () => {
         loadData();
     }, []);
 
-    return { data, loading, error };
+    return { data, loading, error, setData };
 };
 
-export default useBudgetData;
+export default useFetchBudgetItems;

@@ -18,6 +18,7 @@ export const fetchBudgetItems = async () => {
         throw error;
     }
 };
+
 export const addBudgetItem = async (budgetItem) => {
     const response = await api.post("/", budgetItem);
     return response.data;

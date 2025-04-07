@@ -25,3 +25,9 @@ export const TABLE_MONTHS = [
     "November",
     "December",
 ];
+
+export const BudgetTypes = {
+    INCOME: "income",
+    EXPENSE: "expense",
+    SAVING: "saving",
+};
