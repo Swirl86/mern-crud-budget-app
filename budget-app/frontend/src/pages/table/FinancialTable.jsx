@@ -16,8 +16,8 @@ const FinancialTable = ({ budgetData }) => {
     const savingsData = budgetData.filter((item) => item.type === "saving");
 
     return (
-        <div className="overflow-x-auto py-6 px-10">
-            <h1 className="text-2xl font-bold mb-4">Ekonomisk Översikt</h1>
+        <div className="overflow-auto bg-gray-50 rounded-xl shadow-2xl p-6 w-[95vw] mx-auto">
+            <h1 className="text-3xl font-semibold mb-6 text-gray-800">Ekonomisk Översikt</h1>
             <table className="min-w-full table-auto border-collapse">
                 <IncomeHeader />
                 <tbody>
