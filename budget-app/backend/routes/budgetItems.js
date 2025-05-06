@@ -30,9 +30,33 @@ router.post("/", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+router.patch("/:id", async (req, res) => {
+    const { id } = req.params;
+    const { type, category, amounts } = req.body;
+    if (!type || !category || !amounts) {
+        return res.status(400).json({ message: "Type, category, and amounts are required" });
+    }
+
+    try {
+        const updatedBudgetItem = await BudgetItem.findByIdAndUpdate(
+            id,
+            { $set: { type, category, amounts } },
+            { new: true }
+        );
+
+        if (!updatedBudgetItem) {
+            return res.status(404).json({ message: "Budget item not found" });
+        }
+
+        res.status(200).json(updatedBudgetItem);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 router.delete("/delete-all", async (req, res) => {
     try {
-        console.log(req);
         const result = await BudgetItem.deleteMany({});
         res.status(200).json({ message: `${result.deletedCount} documents deleted.` });
     } catch (err) {

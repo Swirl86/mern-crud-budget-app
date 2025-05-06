@@ -23,7 +23,7 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
     };
 
     const handleChange = (e) => {
-        const newValue = e.target.value;
+        var newValue = e.target.value;
         if (newValue === "") {
             newValue = "0";
         }
@@ -45,19 +45,24 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
 
     return (
         <td
-            className={`px-4 py-2 border border-gray-300 ${textColor} cursor-pointer
+            className={`px-4 py-2 border border-gray-300 ${textColor} cursor-pointer leading-tight
                 ${editable ? "hover:bg-gray-100 hover:border-blue-500" : "border-gray-300"} `}
             onClick={handleClick}
         >
             {isEditing ? (
                 <input
                     type="number"
+                    placeholder="input"
                     value={inputValue}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     autoFocus
                     onKeyDown={handleKeyPress}
-                    className="px-2 py-1 border rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full h-full border rounded bg-white text-black
+                        [appearance:textfield]
+                        [&::-webkit-outer-spin-button]:appearance-none
+                        [&::-webkit-inner-spin-button]:appearance-none
+                        focus:outline-none leading-tight"
                     min="0"
                 />
             ) : (

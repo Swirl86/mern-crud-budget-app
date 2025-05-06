@@ -1,5 +1,8 @@
+import SavingIndicator from "@components/SavingIndicator";
+import useUpdateBudgetItems from "@hooks/useUpdateBudgetItems";
 import ErrorMessage from "@ui/ErrorMessage";
-import React from "react";
+import { useEffect, useState } from "react";
+import { FaSave } from "react-icons/fa";
 import BudgetRow from "./BudgetRow.jsx";
 import ExpenseHeader from "./expenses/ExpenseHeader.jsx";
 import ExpensesFooter from "./expenses/ExpensesFooter.jsx";
@@ -14,16 +17,64 @@ const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllEr
     const expenseData = budgetData.filter((item) => item.type === "expense");
     const savingsData = budgetData.filter((item) => item.type === "saving");
 
+    const [editedRows, setEditedRows] = useState([]);
+    const { updateItem, isUpdating, error } = useUpdateBudgetItems();
+
     const handleUpdateRow = (updatedRow) => {
-        // TODO Update the data with the new row information
-        // Listen for ctr + s, have timer save every 30sec or 60sec if somthing changed, add save all button
-        console.log("Updated Row: ", updatedRow);
+        setEditedRows((prev) => {
+            const index = prev.findIndex((r) => r._id === updatedRow._id);
+            if (index !== -1) {
+                const updated = [...prev];
+                updated[index] = updatedRow;
+                return updated;
+            }
+            return [...prev, updatedRow];
+        });
     };
+
+    const handlUpdateAll = async () => {
+        try {
+            for (const row of editedRows) {
+                await updateItem(row);
+            }
+            setEditedRows([]);
+        } catch (error) {
+            console.error("Failed to save rows:", error);
+        }
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+                e.preventDefault();
+                console.log("CTRL-key save all");
+                handlUpdateAll();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [editedRows]);
+
+    // Autoupdate every 30 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            console.log("Auto Save");
+            handlUpdateAll();
+        }, 30000);
+        return () => clearInterval(interval);
+    }, [editedRows]);
 
     return (
         <div className="overflow-auto bg-gray-50 rounded-xl shadow-2xl p-6 w-[95vw] mx-auto">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-semibold text-gray-800">Ekonomisk Översikt</h1>
+                <div className="flex items-center gap-2">
+                    <h1 className="text-3xl font-semibold text-gray-800">Ekonomisk Översikt</h1>
+                    <FaSave
+                        onClick={handlUpdateAll}
+                        className="ml-4 w-8 h-8 text-green-600 cursor-pointer"
+                    />
+                    {isUpdating && <SavingIndicator />}
+                </div>
                 {deleteAllError && <ErrorMessage message={deleteAllError} />}
                 <button
                     onClick={onDeleteAll}
@@ -35,6 +86,9 @@ const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllEr
             </div>
             <table className="min-w-full table-auto border-collapse">
                 <IncomeHeader />
+                {error && (
+                    <ErrorMessage message={error.message || "Ett fel uppstod vid sparning."} />
+                )}
                 <tbody>
                     {incomeData.map((row, rowIndex) => (
                         <BudgetRow

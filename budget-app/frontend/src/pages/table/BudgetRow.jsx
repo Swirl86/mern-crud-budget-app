@@ -44,17 +44,20 @@ const BudgetRow = ({ row, type, onUpdateRow }) => {
     return (
         <tr>
             <td
-                className={`px-4 py-2 border border-gray-300 font-semibold bg-gray-600 text-white cursor-pointer 
-                ${
-                    isEditingCategory
-                        ? "text-black"
-                        : "hover:bg-gray-700 hover:border-blue-500 hover:shadow-md"
-                }`}
+                className={`
+                    px-4 py-2 border border-gray-300 font-semibold cursor-pointer leading-tight
+                    ${
+                        isEditingCategory
+                            ? "bg-gray-600 text-black "
+                            : "bg-gray-500 text-white hover:bg-gray-700 hover:border-blue-500 hover:shadow-md"
+                    }
+                `}
                 onClick={handleCategoryClick}
             >
                 {isEditingCategory ? (
                     <input
                         type="text"
+                        placeholder="input"
                         value={editedCategory}
                         onChange={handleCategoryChange}
                         onBlur={handleSaveCategory} // Trigger save when focus is lost
@@ -62,7 +65,11 @@ const BudgetRow = ({ row, type, onUpdateRow }) => {
                             if (e.key === "Enter") handleSaveCategory();
                         }} // Trigger save when Enter is pressed
                         autoFocus
-                        className="px-2 py-1 border rounded"
+                        className="w-full h-full border rounded bg-white text-black
+                        [appearance:textfield]
+                        [&::-webkit-outer-spin-button]:appearance-none
+                        [&::-webkit-inner-spin-button]:appearance-none
+                        focus:outline-none leading-tight"
                     />
                 ) : (
                     <span onClick={handleCategoryClick}> {editedCategory || "Click to edit"} </span>

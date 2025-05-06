@@ -24,6 +24,15 @@ export const addBudgetItem = async (budgetItem) => {
     return response.data;
 };
 
+export const updateBudgetItem = async (budgetItem) => {
+    try {
+        const response = await api.patch(`/${budgetItem._id}`, budgetItem);
+        return response.data;
+    } catch (err) {
+        throw new Error(err.response?.data?.message || err.message);
+    }
+};
+
 export const deleteAllBudgetItems = async () => {
     await api.delete("/delete-all");
 };
@@ -35,6 +44,7 @@ export const deleteBudgetItem = async (id) => {
 const budgetService = {
     fetchBudgetItems,
     addBudgetItem,
+    updateBudgetItem,
     deleteAllBudgetItems,
     deleteBudgetItem,
 };
