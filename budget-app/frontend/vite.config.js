@@ -14,7 +14,7 @@ export default defineConfig({
             "@table": path.resolve(__dirname, "./src/components/table"),
             "@utils": path.resolve(__dirname, "./src/utils"),
             "@services": path.resolve(__dirname, "./src/services"),
-            "@hooks": path.resolve(__dirname, "./src/hooks"),
+            "@hooks": path.resolve(__dirname, "./src/hooks/hooksImports"),
         },
     },
     css: {

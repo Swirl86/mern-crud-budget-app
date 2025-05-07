@@ -1,5 +1,4 @@
-import useDeleteAllBudgetItems from "@hooks/useDeleteAllBudgetItems";
-import useFetchBudgetItems from "@hooks/useFetchBudgetItems";
+import { useDeleteAllBudgetItems, useFetchBudgetItems } from "@hooks";
 import ErrorMessage from "@ui/ErrorMessage";
 import LoadingIndicator from "@ui/LoadingIndicator";
 import React from "react";

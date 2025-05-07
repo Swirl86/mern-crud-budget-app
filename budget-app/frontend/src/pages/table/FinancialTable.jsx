@@ -1,18 +1,20 @@
+import { splitByType } from "@/utils/helpers";
 import SavingIndicator from "@components/SavingIndicator";
-import useUpdateBudgetItems from "@hooks/useUpdateBudgetItems";
-import useUpdateBudgetOrder from "@hooks/useUpdateBudgetOrder";
+import { useUpdateBudgetItems, useUpdateBudgetOrder } from "@hooks";
 import ErrorMessage from "@ui/ErrorMessage";
 import { useEffect, useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { FaSave } from "react-icons/fa";
-import BudgetRow from "./BudgetRow.jsx";
-import ExpenseHeader from "./expenses/ExpenseHeader.jsx";
-import ExpensesFooter from "./expenses/ExpensesFooter.jsx";
-import IncomeFooter from "./income/IncomeFooter.jsx";
-import IncomeHeader from "./income/IncomeHeader.jsx";
-import SavingsFooter from "./savings/SavingsFooter.jsx";
-import SavingsHeader from "./savings/SavingsHeader.jsx";
-import ResultRow from "./total/ResultRow.jsx";
+import {
+    BudgetRow,
+    ExpenseHeader,
+    ExpensesFooter,
+    IncomeFooter,
+    IncomeHeader,
+    ResultRow,
+    SavingsFooter,
+    SavingsHeader,
+} from "./tableImports.js";
 
 const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllError }) => {
     const [incomeData, setIncomeData] = useState([]);
@@ -24,9 +26,10 @@ const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllEr
     const { updateItem, isUpdating, error } = useUpdateBudgetItems();
 
     useEffect(() => {
-        setIncomeData(budgetData.filter((item) => item.type === "income"));
-        setExpenseData(budgetData.filter((item) => item.type === "expense"));
-        setSavingsData(budgetData.filter((item) => item.type === "saving"));
+        const { incomeData, expenseData, savingsData } = splitByType(budgetData);
+        setIncomeData(incomeData);
+        setExpenseData(expenseData);
+        setSavingsData(savingsData);
     }, [budgetData]);
 
     const handleUpdateRow = (updatedRow) => {
@@ -90,14 +93,17 @@ const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllEr
         const [moved] = updated.splice(source.index, 1);
         updated.splice(destination.index, 0, moved);
 
-        // Update the state with the new order
-        setItems(updated);
+        try {
+            await updateItemOrder(
+                source.droppableId,
+                updated.map((item, index) => ({ id: item._id, order: index }))
+            );
 
-        // Call the backend to update the order in the database
-        await updateItemOrder(
-            source.droppableId,
-            updated.map((item, index) => ({ id: item._id, order: index }))
-        );
+            setItems(updated);
+        } catch (error) {
+            console.error("Failed to update order:", error);
+            // Todo add error message
+        }
     };
 
     return (

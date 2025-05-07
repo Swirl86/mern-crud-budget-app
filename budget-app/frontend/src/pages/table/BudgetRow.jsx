@@ -1,4 +1,4 @@
-import { BudgetTypes } from "@/constants";
+import { getTextColorByType } from "@/utils/helpers";
 import FormattedRowCell from "@table/FormattedRowCell";
 import FormattedSumCell from "@table/FormattedSumCell";
 import { useRef, useState } from "react";
@@ -32,14 +32,7 @@ const BudgetRow = ({ row, type, onUpdateRow, dragHandleProps }) => {
         });
     };
 
-    const textColor =
-        type === BudgetTypes.INCOME
-            ? "text-green-500"
-            : type === BudgetTypes.EXPENSE
-            ? "text-red-500"
-            : type === BudgetTypes.SAVING
-            ? "text-blue-500"
-            : "text-gray-500";
+    const textColor = getTextColorByType(type);
 
     return (
         <>
