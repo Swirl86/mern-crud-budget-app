@@ -22,6 +22,7 @@ const BudgetItemSchema = new mongoose.Schema({
     type: { type: String, enum: ["income", "expense", "saving"], required: true },
     category: { type: String, required: true },
     amounts: { type: MonthlyAmountSchema, required: true },
+    order: { type: Number, required: true },
 });
 
 export default mongoose.model("BudgetItem", BudgetItemSchema);

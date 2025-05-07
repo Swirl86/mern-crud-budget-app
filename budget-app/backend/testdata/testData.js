@@ -2,6 +2,7 @@ export const TEST_DATA_INCOME = [
     {
         type: "income",
         category: "Lön",
+        order: 0,
         amounts: {
             januari: 30000,
             februari: 30000,
@@ -20,6 +21,7 @@ export const TEST_DATA_INCOME = [
     {
         type: "income",
         category: "Barnbidrag",
+        order: 1,
         amounts: {
             januari: 1250,
             februari: 1250,
@@ -41,6 +43,7 @@ export const TEST_DATA_EXPENSES = [
     {
         type: "expense",
         category: "Hyra",
+        order: 0,
         amounts: {
             januari: 8641,
             februari: 8641,
@@ -59,6 +62,7 @@ export const TEST_DATA_EXPENSES = [
     {
         type: "expense",
         category: "Mat",
+        order: 1,
         amounts: {
             januari: 3710,
             februari: 3710,
@@ -77,6 +81,7 @@ export const TEST_DATA_EXPENSES = [
     {
         type: "expense",
         category: "Mobiltelefon",
+        order: 2,
         amounts: {
             januari: 300,
             februari: 300,
@@ -95,6 +100,7 @@ export const TEST_DATA_EXPENSES = [
     {
         type: "expense",
         category: "Bil",
+        order: 3,
         amounts: {
             januari: 2078,
             februari: 2078,
@@ -113,6 +119,7 @@ export const TEST_DATA_EXPENSES = [
     {
         type: "expense",
         category: "Kollektivtrafik",
+        order: 4,
         amounts: {
             januari: 600,
             februari: 600,
@@ -132,6 +139,7 @@ export const TEST_DATA_EXPENSES = [
     {
         type: "expense",
         category: "Bensin",
+        order: 5,
         amounts: {
             januari: 893,
             februari: 893,
@@ -151,6 +159,7 @@ export const TEST_DATA_EXPENSES = [
     {
         type: "expense",
         category: "Nöje",
+        order: 6,
         amounts: {
             januari: 640,
             februari: 640,
@@ -172,6 +181,7 @@ export const TEST_DATA_SAVINGS = [
     {
         type: "saving",
         category: "Aktiesparande",
+        order: 0,
         amounts: {
             januari: 2000,
             februari: 1500,
@@ -190,6 +200,7 @@ export const TEST_DATA_SAVINGS = [
     {
         type: "saving",
         category: "Fonder",
+        order: 1,
         amounts: {
             januari: 1000,
             februari: 1200,
@@ -208,6 +219,7 @@ export const TEST_DATA_SAVINGS = [
     {
         type: "saving",
         category: "Pensionssparande",
+        order: 2,
         amounts: {
             januari: 0,
             februari: 3200,
@@ -226,6 +238,7 @@ export const TEST_DATA_SAVINGS = [
     {
         type: "saving",
         category: "Sparkonto",
+        order: 3,
         amounts: {
             januari: 500,
             februari: 600,
@@ -244,6 +257,7 @@ export const TEST_DATA_SAVINGS = [
     {
         type: "saving",
         category: "Fastighetsinvestering",
+        order: 4,
         amounts: {
             januari: 4000,
             februari: 4500,

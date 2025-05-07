@@ -20,8 +20,13 @@ export const fetchBudgetItems = async () => {
 };
 
 export const addBudgetItem = async (budgetItem) => {
-    const response = await api.post("/", budgetItem);
-    return response.data;
+    try {
+        const response = await api.post("/", budgetItem);
+        return response.data;
+    } catch (error) {
+        console.error("Could not add budgetdata", error);
+        throw error;
+    }
 };
 
 export const updateBudgetItem = async (budgetItem) => {
@@ -29,7 +34,18 @@ export const updateBudgetItem = async (budgetItem) => {
         const response = await api.patch(`/${budgetItem._id}`, budgetItem);
         return response.data;
     } catch (err) {
+        console.error("Could not update budgetdata", err);
         throw new Error(err.response?.data?.message || err.message);
+    }
+};
+
+export const updateBudgetOrder = async (type, newOrderedItems) => {
+    try {
+        const response = await api.patch(`/update-order/${type}`, newOrderedItems);
+        return response.data;
+    } catch (error) {
+        console.error("Could not update budget item order", error);
+        throw new Error(error.response ? error.response.data.message : error.message);
     }
 };
 
@@ -45,6 +61,7 @@ const budgetService = {
     fetchBudgetItems,
     addBudgetItem,
     updateBudgetItem,
+    updateBudgetOrder,
     deleteAllBudgetItems,
     deleteBudgetItem,
 };

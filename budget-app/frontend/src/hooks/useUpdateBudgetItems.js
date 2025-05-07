@@ -11,7 +11,6 @@ const useUpdateBudgetItems = () => {
 
         try {
             const result = await updateBudgetItem(budgetItem);
-            console.log("Updated item:", result);
             return result;
         } catch (err) {
             setError(`Failed to update: ${err.message}`);

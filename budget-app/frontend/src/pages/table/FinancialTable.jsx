@@ -1,7 +1,9 @@
 import SavingIndicator from "@components/SavingIndicator";
 import useUpdateBudgetItems from "@hooks/useUpdateBudgetItems";
+import useUpdateBudgetOrder from "@hooks/useUpdateBudgetOrder";
 import ErrorMessage from "@ui/ErrorMessage";
 import { useEffect, useState } from "react";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { FaSave } from "react-icons/fa";
 import BudgetRow from "./BudgetRow.jsx";
 import ExpenseHeader from "./expenses/ExpenseHeader.jsx";
@@ -13,12 +15,19 @@ import SavingsHeader from "./savings/SavingsHeader.jsx";
 import ResultRow from "./total/ResultRow.jsx";
 
 const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllError }) => {
-    const incomeData = budgetData.filter((item) => item.type === "income");
-    const expenseData = budgetData.filter((item) => item.type === "expense");
-    const savingsData = budgetData.filter((item) => item.type === "saving");
-
+    const [incomeData, setIncomeData] = useState([]);
+    const [expenseData, setExpenseData] = useState([]);
+    const [savingsData, setSavingsData] = useState([]);
     const [editedRows, setEditedRows] = useState([]);
+
+    const { updateItemOrder } = useUpdateBudgetOrder();
     const { updateItem, isUpdating, error } = useUpdateBudgetItems();
+
+    useEffect(() => {
+        setIncomeData(budgetData.filter((item) => item.type === "income"));
+        setExpenseData(budgetData.filter((item) => item.type === "expense"));
+        setSavingsData(budgetData.filter((item) => item.type === "saving"));
+    }, [budgetData]);
 
     const handleUpdateRow = (updatedRow) => {
         setEditedRows((prev) => {
@@ -47,7 +56,7 @@ const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllEr
         const handleKeyDown = (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === "s") {
                 e.preventDefault();
-                console.log("CTRL-key save all");
+                //console.log("CTRL-key save all");
                 handlUpdateAll();
             }
         };
@@ -58,11 +67,38 @@ const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllEr
     // Autoupdate every 30 seconds
     useEffect(() => {
         const interval = setInterval(() => {
-            console.log("Auto Save");
+            //console.log("Auto Save");
             handlUpdateAll();
         }, 30000);
         return () => clearInterval(interval);
     }, [editedRows]);
+
+    // Handle the drag and drop event to update the order
+    const handleDragEnd = async (result) => {
+        const { source, destination } = result;
+        if (!destination) return;
+
+        // Define sections (income, expense, saving) for drag-and-drop
+        const sections = {
+            income: [incomeData, setIncomeData],
+            expense: [expenseData, setExpenseData],
+            saving: [savingsData, setSavingsData],
+        };
+
+        const [items, setItems] = sections[source.droppableId];
+        const updated = [...items];
+        const [moved] = updated.splice(source.index, 1);
+        updated.splice(destination.index, 0, moved);
+
+        // Update the state with the new order
+        setItems(updated);
+
+        // Call the backend to update the order in the database
+        await updateItemOrder(
+            source.droppableId,
+            updated.map((item, index) => ({ id: item._id, order: index }))
+        );
+    };
 
     return (
         <div className="overflow-auto bg-gray-50 rounded-xl shadow-2xl p-6 w-[95vw] mx-auto">
@@ -84,55 +120,111 @@ const FinancialTable = ({ budgetData, onDeleteAll, deleteAllLoading, deleteAllEr
                     Rensa Alla Data
                 </button>
             </div>
-            <table className="min-w-full table-auto border-collapse">
-                <IncomeHeader />
-                {error && (
-                    <ErrorMessage message={error.message || "Ett fel uppstod vid sparning."} />
-                )}
-                <tbody>
-                    {incomeData.map((row, rowIndex) => (
-                        <BudgetRow
-                            key={rowIndex}
-                            row={row}
-                            type="income"
-                            onUpdateRow={handleUpdateRow}
-                        />
-                    ))}
-                </tbody>
-                <IncomeFooter incomeData={incomeData} />
+            <DragDropContext onDragEnd={handleDragEnd}>
+                <table className="min-w-full table-auto border-collapse">
+                    <IncomeHeader />
+                    {error && (
+                        <ErrorMessage message={error.message || "Ett fel uppstod vid sparning."} />
+                    )}
+                    <Droppable droppableId="income">
+                        {(provided) => (
+                            <tbody ref={provided.innerRef} {...provided.droppableProps}>
+                                {incomeData.map((row, rowIndex) => (
+                                    <Draggable
+                                        key={row._id}
+                                        draggableId={row._id.toString()}
+                                        index={rowIndex}
+                                    >
+                                        {(provided) => (
+                                            <tr
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                            >
+                                                <BudgetRow
+                                                    row={row}
+                                                    type="income"
+                                                    onUpdateRow={handleUpdateRow}
+                                                    dragHandleProps={provided.dragHandleProps}
+                                                />
+                                            </tr>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </tbody>
+                        )}
+                    </Droppable>
+                    <IncomeFooter incomeData={incomeData} />
 
-                <ExpenseHeader />
-                <tbody>
-                    {expenseData.map((row, rowIndex) => (
-                        <BudgetRow
-                            key={rowIndex}
-                            row={row}
-                            type="expense"
-                            onUpdateRow={handleUpdateRow}
-                        />
-                    ))}
-                </tbody>
-                <ExpensesFooter expensesData={expenseData} />
+                    <ExpenseHeader />
+                    <Droppable droppableId="expense">
+                        {(provided) => (
+                            <tbody ref={provided.innerRef} {...provided.droppableProps}>
+                                {expenseData.map((row, rowIndex) => (
+                                    <Draggable
+                                        key={row._id}
+                                        draggableId={row._id.toString()}
+                                        index={rowIndex}
+                                    >
+                                        {(provided) => (
+                                            <tr
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                            >
+                                                <BudgetRow
+                                                    row={row}
+                                                    type="expense"
+                                                    onUpdateRow={handleUpdateRow}
+                                                    dragHandleProps={provided.dragHandleProps}
+                                                />
+                                            </tr>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </tbody>
+                        )}
+                    </Droppable>
+                    <ExpensesFooter expensesData={expenseData} />
 
-                <SavingsHeader />
-                <tbody>
-                    {savingsData.map((row, rowIndex) => (
-                        <BudgetRow
-                            key={rowIndex}
-                            row={row}
-                            type="saving"
-                            onUpdateRow={handleUpdateRow}
-                        />
-                    ))}
-                </tbody>
-                <SavingsFooter savingsData={savingsData} />
+                    <SavingsHeader />
+                    <Droppable droppableId="saving">
+                        {(provided) => (
+                            <tbody ref={provided.innerRef} {...provided.droppableProps}>
+                                {savingsData.map((row, rowIndex) => (
+                                    <Draggable
+                                        key={row._id}
+                                        draggableId={row._id.toString()}
+                                        index={rowIndex}
+                                    >
+                                        {(provided) => (
+                                            <tr
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                            >
+                                                <BudgetRow
+                                                    row={row}
+                                                    type="saving"
+                                                    onUpdateRow={handleUpdateRow}
+                                                    dragHandleProps={provided.dragHandleProps}
+                                                />
+                                            </tr>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </tbody>
+                        )}
+                    </Droppable>
+                    <SavingsFooter savingsData={savingsData} />
 
-                <ResultRow
-                    incomeData={incomeData}
-                    expensesData={expenseData}
-                    savingsData={savingsData}
-                />
-            </table>
+                    <ResultRow
+                        incomeData={incomeData}
+                        expensesData={expenseData}
+                        savingsData={savingsData}
+                    />
+                </table>
+            </DragDropContext>
         </div>
     );
 };

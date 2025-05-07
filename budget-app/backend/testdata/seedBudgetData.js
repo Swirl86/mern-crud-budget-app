@@ -23,9 +23,9 @@ const seedData = async ({ deleteData }) => {
     if (deleteData) {
         try {
             const result = await deleteAll();
-            console.log("Alla objekt raderade:", result);
+            console.log("All test data is deleted:", result);
         } catch (error) {
-            console.error("Fel:", error);
+            console.error("Error:", error);
         }
     }
 
@@ -45,7 +45,7 @@ const seedData = async ({ deleteData }) => {
                 throw new Error(`Error when inserting${item.category}: ${response.statusText}`);
             }
 
-            const data = await response.json();
+            await response.json();
             // console.log(`Added: ${data.category}`);
         } catch (error) {
             console.error(`Error: ${error.message}`);
