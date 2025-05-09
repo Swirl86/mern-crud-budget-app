@@ -31,3 +31,20 @@ export const BudgetTypes = {
     EXPENSE: "expense",
     SAVING: "saving",
 };
+
+export const LOADING_STATES = {
+    IDLE: "idle",
+    FETCHING: "fetching",
+    DELETING_ALL: "deletingAll",
+    DELETING_ONE: "deletingOne",
+    UPDATING_ONE: "updatingOne",
+    UPDATING_ORDER: "updatingOrder",
+};
+
+export const ERROR_TYPES = {
+    FETCH_ERROR: "FETCH_ERROR",
+    UPDATE_ERROR: "UPDATE_ERROR",
+    DELETE_ERROR: "DELETE_ERROR",
+    DELETE_ALL_ERROR: "DELETE_ALL_ERROR",
+    REORDER_ERROR: "REORDER_ERROR",
+};
