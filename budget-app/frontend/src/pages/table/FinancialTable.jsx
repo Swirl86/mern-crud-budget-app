@@ -1,54 +1,43 @@
 import { LOADING_STATES } from "@/constants";
 import { useBudget } from "@/context/BudgetContext";
 import { splitByType } from "@/utils/helpers";
-import SavingIndicator from "@components/SavingIndicator";
 import ErrorMessage from "@ui/ErrorMessage";
 import { useEffect, useState } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
-import { FaSave } from "react-icons/fa";
 import BudgetSection from "./components/BudgetSection";
 import {
     ExpenseHeader,
     ExpensesFooter,
     IncomeFooter,
     IncomeHeader,
+    OverviewHeader,
     ResultRow,
     SavingsFooter,
     SavingsHeader,
 } from "./tableImports.js";
 
 const FinancialTable = () => {
-    const {
-        budgetData,
-        error,
-        loadingState,
-        isLoading,
-        deleteAll,
-        deleteById,
-        //addItem,
-        updateItem,
-        updateItemOrder,
-    } = useBudget();
-
+    const budget = useBudget();
     const [sectionData, setSectionData] = useState({
         income: [],
         expense: [],
         saving: [],
     });
     const [editedRows, setEditedRows] = useState([]);
-
-    const isDeletingAll = loadingState === LOADING_STATES.DELETING_ALL;
-    const isUpdating = loadingState === LOADING_STATES.UPDATING_ONE;
+    const [activeDroppableId, setActiveDroppableId] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
+    const isDeletingAll = budget.loadingState === LOADING_STATES.DELETING_ALL;
+    const isUpdating = budget.loadingState === LOADING_STATES.UPDATING_ONE;
+
     useEffect(() => {
-        const { incomeData, expenseData, savingsData } = splitByType(budgetData);
+        const { incomeData, expenseData, savingsData } = splitByType(budget.budgetData);
         setSectionData({
             income: incomeData,
             expense: expenseData,
             saving: savingsData,
         });
-    }, [budgetData]);
+    }, [budget.budgetData]);
 
     const handleUpdateRow = (updatedRow) => {
         setEditedRows((prev) => {
@@ -67,7 +56,7 @@ const FinancialTable = () => {
         setIsSaving(true);
         try {
             for (const row of editedRows) {
-                await updateItem(row);
+                await budget.updateItem(row);
             }
             setEditedRows([]);
         } catch (error) {
@@ -102,9 +91,15 @@ const FinancialTable = () => {
         return () => clearInterval(interval);
     }, [editedRows]);
 
+    const handleDragStart = (start) => {
+        setActiveDroppableId(start.source.droppableId);
+    };
+
     // Handle the drag and drop event to update the order
     const handleDragEnd = async ({ source, destination }) => {
-        if (!destination) return;
+        setActiveDroppableId(null);
+
+        if (!destination || source.droppableId !== destination.droppableId) return;
 
         const sourceItems = Array.from(sectionData[source.droppableId]);
         const [moved] = sourceItems.splice(source.index, 1);
@@ -116,7 +111,7 @@ const FinancialTable = () => {
         }));
 
         try {
-            await updateItemOrder(source.droppableId, newOrder);
+            await budget.updateItemOrder(source.droppableId, newOrder);
             setSectionData((prev) => ({
                 ...prev,
                 [source.droppableId]: sourceItems,
@@ -127,51 +122,50 @@ const FinancialTable = () => {
     };
 
     return (
-        <div className="overflow-auto bg-gray-50 rounded-xl shadow-2xl p-6 w-[95vw] mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-semibold text-gray-800">Ekonomisk Översikt</h1>
-                    <FaSave
-                        onClick={handlUpdateAllEdited}
-                        className="ml-4 w-8 h-8 text-green-600 cursor-pointer"
-                    />
-                    {isSaving && <SavingIndicator />}
-                </div>
-                <button
-                    onClick={deleteAll}
-                    className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                    disabled={isDeletingAll}
-                >
-                    Rensa Alla Data
-                </button>
-            </div>
-            {error && <ErrorMessage message={error.message || "Ett fel uppstod vid sparning."} />}
-            <DragDropContext onDragEnd={handleDragEnd}>
-                <table className="min-w-full table-auto border-collapse">
+        <div className="overflow-auto bg-gray-50 rounded-xl shadow-2xl p-6 sm:p-8 w-[95vw] mx-auto">
+            <OverviewHeader
+                onSave={handlUpdateAllEdited}
+                isSaving={isSaving}
+                onDelete={budget.deleteAll}
+                isDeleting={isDeletingAll}
+            />
+
+            {budget.error && (
+                <ErrorMessage message={budget.error.message || "Ett fel uppstod vid sparning."} />
+            )}
+
+            <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+                <table className="min-w-full border-collapse table-fixed text-left rtl:text-right">
                     <IncomeHeader />
                     <BudgetSection
                         data={sectionData.income}
                         sectionId="income"
                         type="income"
                         onUpdateRow={handleUpdateRow}
+                        activeDroppableId={activeDroppableId}
                     />
                     <IncomeFooter incomeData={sectionData.income} />
+
                     <ExpenseHeader />
                     <BudgetSection
                         data={sectionData.expense}
                         sectionId="expense"
                         type="expense"
                         onUpdateRow={handleUpdateRow}
+                        activeDroppableId={activeDroppableId}
                     />
                     <ExpensesFooter expensesData={sectionData.expense} />
+
                     <SavingsHeader />
                     <BudgetSection
                         data={sectionData.saving}
                         sectionId="saving"
                         type="saving"
                         onUpdateRow={handleUpdateRow}
+                        activeDroppableId={activeDroppableId}
                     />
                     <SavingsFooter savingsData={sectionData.saving} />
+
                     <ResultRow
                         incomeData={sectionData.income}
                         expensesData={sectionData.expense}

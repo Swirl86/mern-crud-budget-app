@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 export const useBudgetOperations = () => {
     const [budgetData, setBudgetData] = useState([]);
     const [error, setError] = useState(null);
-    const [errorType, setErrorType] = useState(null);
     const [loadingState, setLoadingState] = useState(LOADING_STATES.IDLE);
 
     const isLoading = loadingState !== LOADING_STATES.IDLE;
@@ -30,7 +29,6 @@ export const useBudgetOperations = () => {
                 type: ERROR_TYPES.FETCH,
                 message: `Could not fetch budget data: ${err.message}`,
             });
-            setErrorType(ERROR_TYPES.FETCH_ERROR);
         } finally {
             setLoadingState(LOADING_STATES.IDLE);
         }
@@ -115,16 +113,13 @@ export const useBudgetOperations = () => {
         try {
             setLoadingState(LOADING_STATES.UPDATING_ORDER);
             await updateBudgetOrder(type, newOrderedItems);
-            const updatedResponse = await fetchBudgetItems();
-            /*
-            TODO  Save localy one less backend call
             setBudgetData((prev) => {
-                return prev.map((item) => {
+                const updated = prev.map((item) => {
                     const match = newOrderedItems.find((i) => i.id === item._id);
                     return match ? { ...item, order: match.order } : item;
                 });
-            });*/
-            setBudgetData(updatedResponse);
+                return updated.sort((a, b) => a.order - b.order);
+            });
         } catch (err) {
             setError({
                 type: ERROR_TYPES.REORDER_ERROR,

@@ -1,4 +1,5 @@
 export { default as BudgetRow } from "./components/BudgetRow.jsx";
+export { default as OverviewHeader } from "./components/OverviewHeader.jsx";
 export { default as ExpenseHeader } from "./expenses/ExpenseHeader.jsx";
 export { default as ExpensesFooter } from "./expenses/ExpensesFooter.jsx";
 export { default as IncomeFooter } from "./income/IncomeFooter.jsx";

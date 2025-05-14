@@ -5,7 +5,11 @@ const FormattedSumCell = ({ amounts }) => {
 
     const formattedTotal = formatSEK(total);
 
-    return <td className="px-4 py-2 border border-gray-300 bg-gray-100">{formattedTotal} Kr</td>;
+    return (
+        <td className="px-4 py-2 border border-gray-300 bg-gray-100 w-[120px] min-w-0 text-center">
+            {formattedTotal} Kr
+        </td>
+    );
 };
 
 export default FormattedSumCell;

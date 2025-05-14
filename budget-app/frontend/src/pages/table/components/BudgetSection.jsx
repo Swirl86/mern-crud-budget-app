@@ -1,22 +1,52 @@
+import clsx from "clsx";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import BudgetRow from "./BudgetRow";
 
-const BudgetSection = ({ data, sectionId, type, onUpdateRow }) => (
-    <Droppable droppableId={sectionId}>
-        {(provided) => (
-            <tbody ref={provided.innerRef} {...provided.droppableProps}>
+const BudgetSection = ({ data, sectionId, type, onUpdateRow, activeDroppableId }) => (
+    <Droppable
+        droppableId={sectionId}
+        direction="vertical"
+        isDropDisabled={activeDroppableId !== sectionId}
+    >
+        {(provided, snapshot) => (
+            <tbody
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className={clsx(
+                    "transition-all duration-200",
+                    snapshot.isDraggingOver ? "bg-blue-50 border-2 border-blue-700" : ""
+                )}
+            >
                 {data.map((row, rowIndex) => (
                     <Draggable key={row._id} draggableId={row._id.toString()} index={rowIndex}>
-                        {(provided) => (
-                            <tr ref={provided.innerRef} {...provided.draggableProps}>
-                                <BudgetRow
-                                    row={row}
-                                    type={type}
-                                    onUpdateRow={onUpdateRow}
-                                    dragHandleProps={provided.dragHandleProps}
-                                />
-                            </tr>
-                        )}
+                        {(provided, snapshot) => {
+                            const transformFix = provided.draggableProps.style?.transform?.replace(
+                                /translate\(([^,]+),/,
+                                "translate(0,"
+                            );
+                            return (
+                                <tr
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    className={clsx(
+                                        "transition-colors duration-150",
+                                        snapshot.isDragging && "bg-sky-50 opacity-80"
+                                    )}
+                                    style={{
+                                        ...provided.draggableProps.style,
+                                        transform: transformFix,
+                                        display: "table-row",
+                                    }}
+                                >
+                                    <BudgetRow
+                                        row={row}
+                                        type={type}
+                                        onUpdateRow={onUpdateRow}
+                                        dragHandleProps={provided.dragHandleProps}
+                                    />
+                                </tr>
+                            );
+                        }}
                     </Draggable>
                 ))}
                 {provided.placeholder}

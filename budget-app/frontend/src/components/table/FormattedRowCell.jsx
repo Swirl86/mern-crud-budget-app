@@ -1,8 +1,8 @@
 import { formatSEK } from "@utils/format";
+import clsx from "clsx";
 import { useState } from "react";
 
 const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = () => {} }) => {
-    const formattedValue = formatSEK(value);
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState(value || "0");
 
@@ -13,22 +13,16 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
     };
 
     const handleBlur = () => {
-        if (isEditing && inputValue !== value) {
-            const numericValue = parseFloat(inputValue);
-            if (!isNaN(numericValue)) {
-                onValueChange(numericValue);
-            }
+        const numericValue = parseFloat(inputValue);
+        if (!isNaN(numericValue) && numericValue !== value) {
+            onValueChange(numericValue);
         }
         setIsEditing(false);
     };
 
     const handleChange = (e) => {
-        var newValue = e.target.value;
-        if (newValue === "") {
-            newValue = "0";
-        }
-
-        if (!isNaN(newValue) || newValue === "0") {
+        const newValue = e.target.value.replace(",", ".");
+        if (/^\d*\.?\d*$/.test(newValue)) {
             setInputValue(newValue);
         }
     };
@@ -36,17 +30,23 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
     const handleKeyPress = (e) => {
         if (e.key === "Enter") {
             handleBlur();
-        }
-        // Allow only numbers and the backspace key
-        if (!/[\d]/.test(e.key) && e.key !== "Backspace") {
+        } else if (
+            !/[\d]/.test(e.key) &&
+            e.key !== "Backspace" &&
+            e.key !== "ArrowLeft" &&
+            e.key !== "ArrowRight"
+        ) {
             e.preventDefault();
         }
     };
 
     return (
         <td
-            className={`px-4 py-2 border border-gray-300 ${textColor} cursor-pointer leading-tight
-                ${editable ? "hover:bg-gray-100 hover:border-blue-500" : "border-gray-300"} `}
+            className={clsx(
+                "px-4 py-2 border border-gray-300 leading-tight w-[120px] min-w-0",
+                textColor,
+                editable && "cursor-pointer hover:bg-gray-100 hover:border-blue-500"
+            )}
             onClick={handleClick}
         >
             {isEditing ? (
@@ -58,15 +58,11 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
                     onBlur={handleBlur}
                     autoFocus
                     onKeyDown={handleKeyPress}
-                    className="w-full h-full border rounded bg-white text-black
-                        [appearance:textfield]
-                        [&::-webkit-outer-spin-button]:appearance-none
-                        [&::-webkit-inner-spin-button]:appearance-none
-                        focus:outline-none leading-tight"
+                    className="w-full h-full border rounded bg-white text-black focus:outline-none leading-tight"
                     min="0"
                 />
             ) : (
-                formattedValue || "Click to edit"
+                <span>{formatSEK(value) ?? "0 kr"}</span>
             )}
         </td>
     );
