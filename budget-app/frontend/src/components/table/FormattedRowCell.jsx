@@ -52,7 +52,7 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
             {isEditing ? (
                 <input
                     type="number"
-                    placeholder="input"
+                    placeholder="amount"
                     value={inputValue}
                     onChange={handleChange}
                     onBlur={handleBlur}

@@ -69,7 +69,13 @@ export const useBudgetOperations = () => {
         try {
             setLoadingState(LOADING_STATES.DELETING_ONE);
             await deleteBudgetItem(id);
-            setBudgetData(budgetData.filter((item) => item._id !== id));
+            setBudgetData((prevData) => {
+                const updatedData = {};
+                for (const key of Object.keys(prevData)) {
+                    updatedData[key] = prevData[key].filter((item) => item._id !== id);
+                }
+                return updatedData;
+            });
         } catch (err) {
             setError({
                 type: ERROR_TYPES.DELETE_ERROR,

@@ -2,6 +2,7 @@ import { LOADING_STATES } from "@/constants";
 import { useBudget } from "@/context/BudgetContext";
 import { createDefaultBudgetItemWithType } from "@/utils/helpers";
 import { DragDropContext } from "@hello-pangea/dnd";
+import DeleteConfirmModal from "@ui/DeleteConfirmModal";
 import ErrorMessage from "@ui/ErrorMessage";
 import { useEffect, useState } from "react";
 import BudgetSection from "./components/BudgetSection";
@@ -26,10 +27,13 @@ const FinancialTable = () => {
     const [editedRows, setEditedRows] = useState([]);
     const [activeDroppableId, setActiveDroppableId] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
 
     const isDeletingAll = budget.loadingState === LOADING_STATES.DELETING_ALL;
+    const isDeleting = budget.loadingState === LOADING_STATES.DELETING_ONE;
     const isUpdating = budget.loadingState === LOADING_STATES.UPDATING_ONE;
     const isAdding = budget.loadingState === LOADING_STATES.ADDING;
+    const canShowDeleteModal = deleteId && !isSaving && !isDeleting;
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -80,7 +84,8 @@ const FinancialTable = () => {
             }
             setEditedRows([]);
         } catch (error) {
-            console.error("Failed to save edited row(s):", error);
+            setError({ type: ERROR_TYPES.UPDATE, message: error.message });
+            throw error;
         } finally {
             setIsSaving(false);
         }
@@ -97,10 +102,33 @@ const FinancialTable = () => {
 
             await budget.addItem(newItem);
         } catch (error) {
-            console.error("Failed to add row:", error);
+            setError({ type: ERROR_TYPES.ADD_ERROR, message: error.message });
+            throw error;
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const confirmDelete = async () => {
+        try {
+            setIsSaving(true);
+
+            await budget.deleteById(deleteId);
+        } catch (error) {
+            setError({ type: ERROR_TYPES.DELETE_ERROR, message: error.message });
+            throw error;
+        } finally {
+            setIsSaving(false);
+            closeDeleteConfirm();
+        }
+    };
+
+    const openDeleteConfirm = (id) => {
+        setDeleteId(id);
+    };
+
+    const closeDeleteConfirm = () => {
+        setDeleteId(null);
     };
 
     // Handle the drag and drop event to update the order
@@ -134,19 +162,14 @@ const FinancialTable = () => {
                 isDeleting={isDeletingAll}
             />
 
-            {budget.error && (
-                <ErrorMessage message={budget.error.message || "Ett fel uppstod vid sparning."} />
+            {budget.error && <ErrorMessage message={budget.error.message} />}
+
+            {canShowDeleteModal && (
+                <DeleteConfirmModal onConfirm={confirmDelete} onCancel={closeDeleteConfirm} />
             )}
 
             <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
                 <table className="min-w-full border-collapse table-fixed text-left rtl:text-right">
-                    {isAdding && (
-                        <tr key="adding-placeholder">
-                            <td colSpan={6} className="py-2 text-center text-gray-400 italic">
-                                Lägger till rad...
-                            </td>
-                        </tr>
-                    )}
                     <IncomeHeader onAdd={handleAddRow} />
 
                     <BudgetSection
@@ -154,6 +177,7 @@ const FinancialTable = () => {
                         sectionId="income"
                         type="income"
                         onUpdateRow={handleUpdateRow}
+                        openDeleteConfirm={openDeleteConfirm}
                         activeDroppableId={activeDroppableId}
                     />
                     <IncomeFooter incomeData={sectionData.income} />
@@ -164,6 +188,7 @@ const FinancialTable = () => {
                         sectionId="expense"
                         type="expense"
                         onUpdateRow={handleUpdateRow}
+                        openDeleteConfirm={openDeleteConfirm}
                         activeDroppableId={activeDroppableId}
                     />
                     <ExpensesFooter expensesData={sectionData.expense} />
@@ -174,6 +199,7 @@ const FinancialTable = () => {
                         sectionId="saving"
                         type="saving"
                         onUpdateRow={handleUpdateRow}
+                        openDeleteConfirm={openDeleteConfirm}
                         activeDroppableId={activeDroppableId}
                     />
                     <SavingsFooter savingsData={sectionData.saving} />

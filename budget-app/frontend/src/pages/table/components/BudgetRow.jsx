@@ -3,9 +3,9 @@ import FormattedRowCell from "@table/FormattedRowCell";
 import FormattedSumCell from "@table/FormattedSumCell";
 import clsx from "clsx";
 import { useRef, useState } from "react";
-import { FaGripVertical } from "react-icons/fa";
+import { FaGripVertical, FaTrash } from "react-icons/fa";
 
-const BudgetRow = ({ row, type, onUpdateRow, dragHandleProps, isDragging }) => {
+const BudgetRow = ({ row, type, onUpdateRow, openDeleteConfirm, dragHandleProps, isDragging }) => {
     const inputRef = useRef(null);
 
     const [isEditingCategory, setIsEditingCategory] = useState(false);
@@ -91,6 +91,17 @@ const BudgetRow = ({ row, type, onUpdateRow, dragHandleProps, isDragging }) => {
             ))}
 
             <FormattedSumCell amounts={editedAmounts} />
+
+            <td className="px-2 text-center">
+                <button
+                    onClick={() => openDeleteConfirm(row._id)}
+                    className="text-red-400 hover:text-red-700 transition-colors duration-200"
+                    aria-label="Delete row"
+                    title="Ta bort rad"
+                >
+                    <FaTrash />
+                </button>
+            </td>
         </>
     );
 };

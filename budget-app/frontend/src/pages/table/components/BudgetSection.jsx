@@ -7,6 +7,7 @@ const BudgetSection = ({
     sectionId = "",
     type = "",
     onUpdateRow = () => {},
+    openDeleteConfirm = () => {},
     activeDroppableId = null,
 }) => (
     <Droppable
@@ -49,6 +50,7 @@ const BudgetSection = ({
                                         row={row}
                                         type={type}
                                         onUpdateRow={onUpdateRow}
+                                        openDeleteConfirm={openDeleteConfirm}
                                         dragHandleProps={provided.dragHandleProps}
                                     />
                                 </tr>
