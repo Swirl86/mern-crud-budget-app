@@ -35,6 +35,7 @@ export const BudgetTypes = {
 export const LOADING_STATES = {
     IDLE: "idle",
     FETCHING: "fetching",
+    ADDING: "adding",
     DELETING_ALL: "deletingAll",
     DELETING_ONE: "deletingOne",
     UPDATING_ONE: "updatingOne",
@@ -43,6 +44,7 @@ export const LOADING_STATES = {
 
 export const ERROR_TYPES = {
     FETCH_ERROR: "FETCH_ERROR",
+    ADD_ERROR: "ADD_ERROR",
     UPDATE_ERROR: "UPDATE_ERROR",
     DELETE_ERROR: "DELETE_ERROR",
     DELETE_ALL_ERROR: "DELETE_ALL_ERROR",

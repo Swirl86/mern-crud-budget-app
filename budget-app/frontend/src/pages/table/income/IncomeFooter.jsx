@@ -1,6 +1,5 @@
 import { TABLE_TITLES } from "@/constants";
 import RowFooter from "@table/RowFooter";
-import React from "react";
 
 const IncomeFooter = ({ incomeData }) => {
     return (

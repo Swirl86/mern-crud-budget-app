@@ -1,5 +1,4 @@
 import { TABLE_MONTHS } from "@/constants";
-import React from "react";
 
 const MonthRow = () => {
     return (

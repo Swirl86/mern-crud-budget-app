@@ -62,7 +62,7 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
                     min="0"
                 />
             ) : (
-                <span>{formatSEK(value) ?? "0 kr"}</span>
+                <span>{value ? formatSEK(value) : "0"}</span>
             )}
         </td>
     );

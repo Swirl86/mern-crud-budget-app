@@ -80,9 +80,9 @@ const BudgetRow = ({ row, type, onUpdateRow, dragHandleProps, isDragging }) => {
                 </div>
             </td>
 
-            {Object.entries(editedAmounts).map(([month, value], colIndex) => (
+            {Object.entries(editedAmounts).map(([month, value]) => (
                 <FormattedRowCell
-                    key={colIndex}
+                    key={month}
                     value={value}
                     textColor={textColor}
                     editable={true}

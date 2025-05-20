@@ -1,8 +1,9 @@
 import { ERROR_TYPES, LOADING_STATES } from "@/constants";
+import { splitByType } from "@/utils/helpers";
 import {
+    addBudgetItem,
     deleteAllBudgetItems,
     deleteBudgetItem,
-    //addBudgetItem,
     fetchBudgetItems,
     updateBudgetItem,
     updateBudgetOrder,
@@ -10,7 +11,11 @@ import {
 import { useEffect, useState } from "react";
 
 export const useBudgetOperations = () => {
-    const [budgetData, setBudgetData] = useState([]);
+    const [budgetData, setBudgetData] = useState({
+        income: [],
+        expense: [],
+        saving: [],
+    });
     const [error, setError] = useState(null);
     const [loadingState, setLoadingState] = useState(LOADING_STATES.IDLE);
 
@@ -23,7 +28,12 @@ export const useBudgetOperations = () => {
         try {
             setLoadingState(LOADING_STATES.FETCHING);
             const result = await fetchBudgetItems();
-            setBudgetData(result);
+            const { incomeData, expenseData, savingsData } = splitByType(result);
+            setBudgetData({
+                income: incomeData,
+                expense: expenseData,
+                saving: savingsData,
+            });
         } catch (err) {
             setError({
                 type: ERROR_TYPES.FETCH,
@@ -70,34 +80,51 @@ export const useBudgetOperations = () => {
         }
     };
 
-    /*
-     * TODO impl
     const addItem = async (newItem) => {
         resetErrors();
         try {
-            setLoading(true);
-            await addBudgetItem(newItem);
-            setBudgetData((prevData) => [...prevData, newItem]);
-        } catch (err) {
-         setError({
-                type: ERROR_TYPES.ADD_ERROR,
-                message: `Could not  add item: ${err.message}`,
+            setLoadingState(LOADING_STATES.ADDING);
+
+            const savedItem = await addBudgetItem(newItem);
+
+            if (!savedItem.type) {
+                console.error("Missing type on saved item:", savedItem);
+            }
+
+            setBudgetData((prevData) => {
+                const updatedData = { ...prevData };
+                if (!updatedData[savedItem.type]) {
+                    console.error(`Unknown budget type: ${savedItem.type}`);
+                }
+
+                updatedData[savedItem.type] = [...(updatedData[savedItem.type] || []), savedItem];
+                return updatedData;
             });
-            setError(`Could not add item: ${err.message}`);
-            setErrorType(ERROR_TYPES.ADD_ERROR);
+        } catch (err) {
+            setError({
+                type: ERROR_TYPES.ADD_ERROR,
+                message: `Could not add item: ${err.message}`,
+            });
         } finally {
             setLoadingState(LOADING_STATES.IDLE);
         }
-    };*/
+    };
 
     const updateItem = async (updatedItem) => {
         resetErrors();
         try {
             setLoadingState(LOADING_STATES.UPDATING_ONE);
             await updateBudgetItem(updatedItem);
-            setBudgetData((prevData) =>
-                prevData.map((item) => (item._id === updatedItem._id ? updatedItem : item))
-            );
+            setBudgetData((prevData) => {
+                const updatedData = { ...prevData };
+                Object.keys(updatedData).forEach((type) => {
+                    updatedData[type] = updatedData[type].map((item) =>
+                        item._id === updatedItem._id ? updatedItem : item
+                    );
+                });
+
+                return updatedData;
+            });
         } catch (err) {
             setError({
                 type: ERROR_TYPES.UPDATE_ERROR,
@@ -114,11 +141,13 @@ export const useBudgetOperations = () => {
             setLoadingState(LOADING_STATES.UPDATING_ORDER);
             await updateBudgetOrder(type, newOrderedItems);
             setBudgetData((prev) => {
-                const updated = prev.map((item) => {
+                const updatedData = { ...prev };
+                updatedData[type] = updatedData[type].map((item) => {
                     const match = newOrderedItems.find((i) => i.id === item._id);
                     return match ? { ...item, order: match.order } : item;
                 });
-                return updated.sort((a, b) => a.order - b.order);
+                updatedData[type] = updatedData[type].sort((a, b) => a.order - b.order);
+                return updatedData;
             });
         } catch (err) {
             setError({
@@ -137,7 +166,7 @@ export const useBudgetOperations = () => {
         isLoading,
         deleteAll,
         deleteById,
-        //addItem,
+        addItem,
         updateItem,
         updateItemOrder,
     };

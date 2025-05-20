@@ -26,12 +26,15 @@ router.post("/", async (req, res) => {
             finalOrder = count;
         }
 
-        const updatedOrInserted = await BudgetItem.findOneAndUpdate(
-            { type, category },
-            { $set: { amounts, order: finalOrder } },
-            { upsert: true, new: true }
-        );
-        res.status(201).json(updatedOrInserted);
+        const newItem = new BudgetItem({
+            type,
+            category,
+            amounts,
+            order: finalOrder,
+        });
+
+        const savedItem = await newItem.save();
+        res.status(201).json(savedItem);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

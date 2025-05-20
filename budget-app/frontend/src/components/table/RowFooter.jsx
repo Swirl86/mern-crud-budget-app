@@ -1,8 +1,7 @@
 import { TABLE_MONTHS } from "@/constants";
 import { formatSEK } from "@utils/format";
-import React from "react";
 
-const RowFooter = ({ title, data, positiveColor }) => {
+const RowFooter = ({ title = "", data = [], positiveColor = "text-gray-500" }) => {
     const monthlySums = TABLE_MONTHS.reduce((acc, month) => {
         acc[month.toLowerCase()] = 0;
         return acc;
@@ -28,7 +27,6 @@ const RowFooter = ({ title, data, positiveColor }) => {
                 {TABLE_MONTHS.map((month, index) => {
                     const monthKey = month.toLowerCase();
                     const value = monthlySums[monthKey];
-                    const formattedValue = formatSEK(value);
                     return (
                         <td
                             key={index}
@@ -36,12 +34,12 @@ const RowFooter = ({ title, data, positiveColor }) => {
                                 value === 0 ? "text-gray-500" : positiveColor
                             }`}
                         >
-                            {formattedValue}
+                            <span>{value ? formatSEK(value) + " kr" : "0 kr"}</span>
                         </td>
                     );
                 })}
                 <td className="px-4 py-2 border border-gray-300 font-semibold">
-                    {formatSEK(totalSum)} Kr
+                    <span>{totalSum ? formatSEK(totalSum) + " kr" : "0 kr"}</span>
                 </td>
             </tr>
         </thead>

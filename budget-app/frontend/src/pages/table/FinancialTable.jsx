@@ -1,9 +1,9 @@
 import { LOADING_STATES } from "@/constants";
 import { useBudget } from "@/context/BudgetContext";
-import { splitByType } from "@/utils/helpers";
+import { createDefaultBudgetItemWithType } from "@/utils/helpers";
+import { DragDropContext } from "@hello-pangea/dnd";
 import ErrorMessage from "@ui/ErrorMessage";
 import { useEffect, useState } from "react";
-import { DragDropContext } from "react-beautiful-dnd";
 import BudgetSection from "./components/BudgetSection";
 import {
     ExpenseHeader,
@@ -18,53 +18,18 @@ import {
 
 const FinancialTable = () => {
     const budget = useBudget();
-    const [sectionData, setSectionData] = useState({
-        income: [],
-        expense: [],
-        saving: [],
-    });
+    const sectionData = {
+        income: budget.budgetData.income || [],
+        expense: budget.budgetData.expense || [],
+        saving: budget.budgetData.saving || [],
+    };
     const [editedRows, setEditedRows] = useState([]);
     const [activeDroppableId, setActiveDroppableId] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
     const isDeletingAll = budget.loadingState === LOADING_STATES.DELETING_ALL;
     const isUpdating = budget.loadingState === LOADING_STATES.UPDATING_ONE;
-
-    useEffect(() => {
-        const { incomeData, expenseData, savingsData } = splitByType(budget.budgetData);
-        setSectionData({
-            income: incomeData,
-            expense: expenseData,
-            saving: savingsData,
-        });
-    }, [budget.budgetData]);
-
-    const handleUpdateRow = (updatedRow) => {
-        setEditedRows((prev) => {
-            const index = prev.findIndex((r) => r._id === updatedRow._id);
-            if (index !== -1) {
-                const updated = [...prev];
-                updated[index] = updatedRow;
-                return updated;
-            }
-            return [...prev, updatedRow];
-        });
-    };
-
-    const handlUpdateAllEdited = async () => {
-        if (isSaving || isUpdating) return; // Prevent multiple saves at once
-        setIsSaving(true);
-        try {
-            for (const row of editedRows) {
-                await budget.updateItem(row);
-            }
-            setEditedRows([]);
-        } catch (error) {
-            console.error("Failed to save edited row(s):", error);
-        } finally {
-            setIsSaving(false);
-        }
-    };
+    const isAdding = budget.loadingState === LOADING_STATES.ADDING;
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -95,6 +60,49 @@ const FinancialTable = () => {
         setActiveDroppableId(start.source.droppableId);
     };
 
+    const handleUpdateRow = (updatedRow) => {
+        setEditedRows((prev) => {
+            const exists = prev.some((r) => r._id === updatedRow._id);
+            if (exists) {
+                return prev.map((r) => (r._id === updatedRow._id ? updatedRow : r));
+            }
+            return [...prev, updatedRow];
+        });
+    };
+
+    const handlUpdateAllEdited = async () => {
+        if (isSaving || isUpdating) return; // Prevent multiple saves at once
+
+        try {
+            setIsSaving(true);
+            for (const row of editedRows) {
+                await budget.updateItem(row);
+            }
+            setEditedRows([]);
+        } catch (error) {
+            console.error("Failed to save edited row(s):", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleAddRow = async (type) => {
+        if (isSaving || isAdding) return;
+
+        try {
+            setIsSaving(true);
+
+            const lastOrder = sectionData[type]?.length || 0;
+            const newItem = createDefaultBudgetItemWithType(type, lastOrder);
+
+            await budget.addItem(newItem);
+        } catch (error) {
+            console.error("Failed to add row:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     // Handle the drag and drop event to update the order
     const handleDragEnd = async ({ source, destination }) => {
         setActiveDroppableId(null);
@@ -112,10 +120,6 @@ const FinancialTable = () => {
 
         try {
             await budget.updateItemOrder(source.droppableId, newOrder);
-            setSectionData((prev) => ({
-                ...prev,
-                [source.droppableId]: sourceItems,
-            }));
         } catch (err) {
             console.error("Failed to update order:", err);
         }
@@ -136,7 +140,15 @@ const FinancialTable = () => {
 
             <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
                 <table className="min-w-full border-collapse table-fixed text-left rtl:text-right">
-                    <IncomeHeader />
+                    {isAdding && (
+                        <tr key="adding-placeholder">
+                            <td colSpan={6} className="py-2 text-center text-gray-400 italic">
+                                Lägger till rad...
+                            </td>
+                        </tr>
+                    )}
+                    <IncomeHeader onAdd={handleAddRow} />
+
                     <BudgetSection
                         data={sectionData.income}
                         sectionId="income"
@@ -146,7 +158,7 @@ const FinancialTable = () => {
                     />
                     <IncomeFooter incomeData={sectionData.income} />
 
-                    <ExpenseHeader />
+                    <ExpenseHeader onAdd={handleAddRow} />
                     <BudgetSection
                         data={sectionData.expense}
                         sectionId="expense"
@@ -156,7 +168,7 @@ const FinancialTable = () => {
                     />
                     <ExpensesFooter expensesData={sectionData.expense} />
 
-                    <SavingsHeader />
+                    <SavingsHeader onAdd={handleAddRow} />
                     <BudgetSection
                         data={sectionData.saving}
                         sectionId="saving"

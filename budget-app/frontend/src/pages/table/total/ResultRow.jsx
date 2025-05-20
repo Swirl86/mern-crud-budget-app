@@ -1,7 +1,7 @@
 import { TABLE_MONTHS, TABLE_TITLES } from "@/constants";
 import { formatSEK } from "@utils/format";
 
-const ResultRow = ({ incomeData, expensesData, savingsData }) => {
+const ResultRow = ({ incomeData = [], expensesData = [], savingsData = [] }) => {
     const monthlyResults = TABLE_MONTHS.map((month) => {
         const monthKey = month.toLowerCase();
 
@@ -37,11 +37,11 @@ const ResultRow = ({ incomeData, expensesData, savingsData }) => {
                             result < 0 ? "text-red-500" : "text-green-500"
                         }`}
                     >
-                        {formatSEK(result)}
+                        <span>{result ? formatSEK(result) + " kr" : "0 kr"}</span>
                     </td>
                 ))}
                 <td className="px-4 py-2 border border-gray-300 font-semibold">
-                    {formatSEK(totalResult)} Kr
+                    <span>{totalResult ? formatSEK(totalResult) + " kr" : "0 kr"}</span>
                 </td>
             </tr>
         </thead>

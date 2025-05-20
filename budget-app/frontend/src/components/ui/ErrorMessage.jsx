@@ -17,7 +17,7 @@ const ErrorMessage = ({ message }) => {
                     d="M12 9v2m0 4h.01M12 6a9 9 0 100 18 9 9 0 000-18z"
                 />
             </svg>
-            <span>{message}</span>
+            <span>{message?.message || "Ett fel inträffade."}</span>
         </div>
     );
 };

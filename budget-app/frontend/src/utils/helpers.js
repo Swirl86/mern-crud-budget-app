@@ -1,4 +1,4 @@
-import { BudgetTypes } from "@/constants";
+import { BudgetTypes, TABLE_MONTHS } from "@/constants";
 
 export const splitByType = (budgetData) => ({
     incomeData: budgetData.filter((item) => item.type === "income"),
@@ -18,3 +18,18 @@ export function getTextColorByType(type) {
             return "text-gray-500";
     }
 }
+
+export const createDefaultBudgetItemWithType = (type, currentLength = 0) => {
+    const amounts = TABLE_MONTHS.reduce((acc, month, _) => {
+        const monthKey = month.toLowerCase();
+        acc[monthKey] = 0;
+        return acc;
+    }, {});
+
+    return {
+        type,
+        category: "Ny kategori",
+        amounts: amounts,
+        order: currentLength,
+    };
+};

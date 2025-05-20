@@ -1,8 +1,14 @@
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import clsx from "clsx";
-import { Draggable, Droppable } from "react-beautiful-dnd";
 import BudgetRow from "./BudgetRow";
 
-const BudgetSection = ({ data, sectionId, type, onUpdateRow, activeDroppableId }) => (
+const BudgetSection = ({
+    data = [],
+    sectionId = "",
+    type = "",
+    onUpdateRow = () => {},
+    activeDroppableId = null,
+}) => (
     <Droppable
         droppableId={sectionId}
         direction="vertical"
@@ -10,6 +16,7 @@ const BudgetSection = ({ data, sectionId, type, onUpdateRow, activeDroppableId }
     >
         {(provided, snapshot) => (
             <tbody
+                key={type}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
                 className={clsx(
