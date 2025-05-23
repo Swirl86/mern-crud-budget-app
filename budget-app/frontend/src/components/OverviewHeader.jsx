@@ -1,4 +1,4 @@
-import SavingIndicator from "@components/SavingIndicator";
+import SavingIndicator from "@components/ui/SavingIndicator";
 import { FaSave } from "react-icons/fa";
 
 const OverviewHeader = ({ onSave, isSaving, onDelete, isDeleting }) => {

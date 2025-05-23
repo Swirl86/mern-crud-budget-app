@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
-const DeleteConfirmModal = ({ onConfirm, onCancel }) => {
+const DeleteConfirmModal = ({
+    onConfirm,
+    onCancel,
+    text = "Är du säker på att du vill ta bort raden? Det går inte att ångra.",
+}) => {
     const [show, setShow] = useState(false);
 
     useEffect(() => {
@@ -30,9 +34,7 @@ const DeleteConfirmModal = ({ onConfirm, onCancel }) => {
                     Bekräfta borttagning
                     <FaExclamationTriangle className="ml-2 text-red-600" size={24} />
                 </h3>
-                <p className="mb-6 text-gray-700">
-                    Är du säker på att du vill ta bort raden? Det går inte att ångra.
-                </p>
+                <p className="mb-6 text-gray-700">{text}</p>
                 <div className="flex justify-center space-x-6 w-full max-w-xs">
                     <button
                         onClick={onConfirm}
