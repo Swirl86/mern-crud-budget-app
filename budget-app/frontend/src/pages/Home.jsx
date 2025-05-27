@@ -10,7 +10,7 @@ const Home = () => {
     const isFetching = isLoading === LOADING_STATES.FETCHING;
     const failedFetching = error === ERROR_TYPES.FETCH;
     return (
-        <div className="home bg-gray-200 min-h-screen py-6">
+        <div className="home bg-gray-100 min-h-screen my-6">
             {isFetching && <LoadingIndicator />}
             {failedFetching && <ErrorMessage message={error} />}
             {!isFetching && !failedFetching && <FinancialTable />}
