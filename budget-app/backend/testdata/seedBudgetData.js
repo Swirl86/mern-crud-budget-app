@@ -1,56 +1,62 @@
 import fetch from "node-fetch";
 import { TEST_DATA_EXPENSES, TEST_DATA_INCOME, TEST_DATA_SAVINGS } from "./testData.js";
 
-const API_URL = "http://localhost:5000/api/budget-items";
+const API_URL = "http://localhost:5000/api/budgets";
 
-const deleteAll = async () => {
+const deleteAllBudgets = async () => {
     try {
-        const response = await fetch(`${API_URL}/delete-all`, {
-            method: "DELETE",
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to delete: ${response.statusText}`);
-        }
-        const result = await response.json();
-        console.log("Delete result:", result);
-        return result;
-    } catch (error) {
-        throw error;
-    }
-};
+        const getRes = await fetch(API_URL);
+        const budgets = await getRes.json();
 
-const seedData = async ({ deleteData }) => {
-    if (deleteData) {
-        try {
-            const result = await deleteAll();
-            console.log("All test data is deleted:", result);
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    }
-
-    const allData = [...TEST_DATA_INCOME, ...TEST_DATA_EXPENSES, ...TEST_DATA_SAVINGS];
-
-    for (const item of allData) {
-        try {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(item),
+        for (const budget of budgets) {
+            const delRes = await fetch(`${API_URL}/${budget._id}`, {
+                method: "DELETE",
             });
 
-            if (!response.ok) {
-                throw new Error(`Error when inserting${item.category}: ${response.statusText}`);
+            if (!delRes.ok) {
+                throw new Error(`Failed to delete budget ${budget._id}: ${delRes.statusText}`);
             }
-
-            await response.json();
-            // console.log(`Added: ${data.category}`);
-        } catch (error) {
-            console.error(`Error: ${error.message}`);
         }
+
+        console.log(`Deleted ${budgets.length} budgets`);
+    } catch (error) {
+        console.error("Error deleting budgets:", error);
     }
 };
 
-export default seedData;
+const seedBudgets = async (deleteData = false) => {
+    if (deleteData) {
+        await deleteAllBudgets();
+    }
+
+    const allItems = [...TEST_DATA_INCOME, ...TEST_DATA_EXPENSES, ...TEST_DATA_SAVINGS];
+
+    const budget = {
+        title: "Testbudget 2025",
+        items: allItems.map((item, index) => ({
+            ...item,
+            order: index,
+        })),
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(budget),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to insert budget: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("Seeded budget:", result.title);
+    } catch (error) {
+        console.error("Error seeding budget:", error);
+    }
+};
+
+export default seedBudgets;

@@ -1,18 +1,28 @@
 import express from "express";
-import BudgetItem from "../models/BudgetItem.js";
+import Budget from "../models/Budget.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/:budgetId/items", async (req, res) => {
+    const { budgetId } = req.params;
+
     try {
-        const items = await BudgetItem.find().sort({ type: 1, order: 1 });
-        res.json(items);
+        const budget = await Budget.findById(budgetId);
+        if (!budget) return res.status(404).json({ message: "Budget not found" });
+
+        const sortedItems = budget.items.sort((a, b) => {
+            if (a.type === b.type) return a.order - b.order;
+            return a.type.localeCompare(b.type);
+        });
+
+        res.json(sortedItems);
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({ message: err.message });
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/:budgetId/items", async (req, res) => {
+    const { budgetId } = req.params;
     const { type, category, amounts, order } = req.body;
 
     if (!type || !category || !amounts) {
@@ -20,28 +30,30 @@ router.post("/", async (req, res) => {
     }
 
     try {
-        let finalOrder = order;
-        if (typeof finalOrder !== "number") {
-            const count = await BudgetItem.countDocuments({ type });
-            finalOrder = count;
-        }
+        const budget = await Budget.findById(budgetId);
+        if (!budget) return res.status(404).json({ message: "Budget not found" });
 
-        const newItem = new BudgetItem({
+        const itemsOfType = budget.items.filter((item) => item.type === type);
+        const finalOrder = typeof order === "number" ? order : itemsOfType.length;
+
+        const newItem = {
             type,
             category,
             amounts,
             order: finalOrder,
-        });
+        };
 
-        const savedItem = await newItem.save();
-        res.status(201).json(savedItem);
+        budget.items.push(newItem);
+        await budget.save();
+
+        res.status(201).json(budget.items[budget.items.length - 1]);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-router.patch("/:id", async (req, res) => {
-    const { id } = req.params;
+router.patch("/:budgetId/items/:itemId", async (req, res) => {
+    const { budgetId, itemId } = req.params;
     const { type, category, amounts, order } = req.body;
 
     if (!type || !category || !amounts) {
@@ -49,61 +61,85 @@ router.patch("/:id", async (req, res) => {
     }
 
     try {
-        const updatedBudgetItem = await BudgetItem.findByIdAndUpdate(
-            id,
-            { $set: { type, category, amounts, ...(order !== undefined && { order }) } },
-            { new: true }
-        );
+        const budget = await Budget.findById(budgetId);
+        if (!budget) return res.status(404).json({ message: "Budget not found" });
 
-        if (!updatedBudgetItem) {
-            return res.status(404).json({ message: "Budget item not found" });
-        }
+        const item = budget.items.find((i) => i._id.toString() === itemId);
+        if (!item) return res.status(404).json({ message: "Item not found" });
 
-        res.status(200).json(updatedBudgetItem);
+        item.type = type;
+        item.category = category;
+        item.amounts = amounts;
+        if (order !== undefined) item.order = order;
+
+        await budget.save();
+        res.status(200).json(item);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-router.patch("/update-order/:type", async (req, res) => {
+router.patch("/:budgetId/items/update-order/:type", async (req, res) => {
+    const { budgetId, type } = req.params;
     const newOrder = req.body;
+
     if (!Array.isArray(newOrder) || newOrder.length === 0) {
         return res.status(400).json({ message: "Invalid order data" });
     }
 
     try {
-        const bulkOps = newOrder.map((item, index) => ({
-            updateOne: {
-                filter: { _id: item.id },
-                update: { $set: { order: index } },
-            },
-        }));
-        await BudgetItem.bulkWrite(bulkOps);
+        const budget = await Budget.findById(budgetId);
+        if (!budget) return res.status(404).json({ message: "Budget not found" });
 
+        for (const itemData of newOrder) {
+            const item = budget.items.find((i) => i._id.toString() === itemData.id);
+            if (item && item.type === type) {
+                item.order = itemData.order;
+            }
+        }
+
+        await budget.save();
         res.status(200).json({ message: "Order updated successfully" });
     } catch (error) {
-        res.status(500).json({ message: "Failed to update order", error: error.message });
+        res.status(500).json({ message: error.message });
     }
 });
 
-router.delete("/delete-all", async (req, res) => {
-    try {
-        const result = await BudgetItem.deleteMany({});
-        res.status(200).json({ message: `${result.deletedCount} documents deleted.` });
-    } catch (err) {
-        res.status(500).json({ message: "Error deleting documents.", error: err });
-    }
-});
+router.delete("/:budgetId/items/:itemId", async (req, res) => {
+    const { budgetId, itemId } = req.params;
 
-router.delete("/:id", async (req, res) => {
     try {
-        const deleted = await BudgetItem.findByIdAndDelete(req.params.id);
-        if (!deleted) {
-            return res.status(404).json({ message: "Item not found" });
-        }
+        const budget = await Budget.findById(budgetId);
+        if (!budget) return res.status(404).json({ message: "Budget not found" });
+
+        const index = budget.items.findIndex((i) => i._id.toString() === itemId);
+        if (index === -1) return res.status(404).json({ message: "Item not found" });
+
+        budget.items.splice(index, 1);
+
+        await budget.save();
+
         res.json({ message: "Item deleted" });
     } catch (err) {
-        res.status(500).json(err);
+        console.error("Delete error:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+router.delete("/:budgetId/items", async (req, res) => {
+    const { budgetId } = req.params;
+
+    try {
+        const budget = await Budget.findById(budgetId);
+        if (!budget) return res.status(404).json({ message: "Budget not found" });
+
+        const deletedCount = budget.items.length;
+        budget.items = [];
+        await budget.save();
+
+        res.status(200).json({ message: `${deletedCount} items deleted.` });
+    } catch (err) {
+        res.status(500).json({ message: "Error deleting items", error: err });
     }
 });
 

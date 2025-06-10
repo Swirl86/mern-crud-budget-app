@@ -1,5 +1,5 @@
 import { LOADING_STATES } from "@/constants";
-import { useBudgetOperations } from "@hooks/useBudgetOperations.jsx";
+import { useBudgetOperations } from "@hooks/useBudgetOperations";
 import { createContext, useContext } from "react";
 
 const BudgetContext = createContext({
@@ -18,36 +18,9 @@ const BudgetContext = createContext({
     updateItemOrder: () => {},
 });
 
-export const BudgetProvider = ({ children }) => {
-    const {
-        budgetData,
-        error,
-        loadingState,
-        isLoading,
-        deleteAll,
-        deleteById,
-        addItem,
-        updateItem,
-        updateItemOrder,
-    } = useBudgetOperations();
-
-    return (
-        <BudgetContext.Provider
-            value={{
-                budgetData,
-                error,
-                loadingState,
-                isLoading,
-                deleteAll,
-                deleteById,
-                addItem,
-                updateItem,
-                updateItemOrder,
-            }}
-        >
-            {children}
-        </BudgetContext.Provider>
-    );
+export const BudgetProvider = ({ children, budgetId }) => {
+    const budgetOperations = useBudgetOperations(budgetId);
+    return <BudgetContext.Provider value={budgetOperations}>{children}</BudgetContext.Provider>;
 };
 
 export const useBudget = () => useContext(BudgetContext);
