@@ -3,14 +3,15 @@ import { splitByType } from "@/utils/helpers";
 import {
     addBudgetItem,
     deleteAllBudgetItems,
+    deleteBudget,
     deleteBudgetItem,
-    fetchBudgetItems,
+    fetchBudgetById,
     updateBudgetItem,
-    updateBudgetOrder,
+    updateBudgetItemOrder,
 } from "@services/api";
 import { useEffect, useState } from "react";
 
-export const useBudgetOperations = () => {
+export const useBudgetOperations = (budgetId) => {
     const [budgetData, setBudgetData] = useState({
         income: [],
         expense: [],
@@ -23,12 +24,15 @@ export const useBudgetOperations = () => {
 
     const resetErrors = () => setError(null);
 
+    // --- Budgets ---
+
     const loadBudgetData = async () => {
+        if (!budgetId) return;
         resetErrors();
         try {
             setLoadingState(LOADING_STATES.FETCHING);
-            const result = await fetchBudgetItems();
-            const { incomeData, expenseData, savingsData } = splitByType(result);
+            const result = await fetchBudgetById(budgetId);
+            const { incomeData, expenseData, savingsData } = splitByType(result.items);
             setBudgetData({
                 income: incomeData,
                 expense: expenseData,
@@ -46,29 +50,54 @@ export const useBudgetOperations = () => {
 
     useEffect(() => {
         loadBudgetData();
-    }, []);
+    }, [budgetId]);
 
-    const deleteAll = async () => {
+    const deleteEntireBudget = async () => {
+        if (!budgetId) return;
         resetErrors();
         try {
-            setLoadingState(LOADING_STATES.DELETING_ALL);
-            await deleteAllBudgetItems();
-            setBudgetData([]);
+            setLoadingState(LOADING_STATES.DELETING_BUDGET);
+            await deleteBudget(budgetId);
+            setBudgetData({ income: [], expense: [], saving: [] });
         } catch (err) {
             setError({
-                type: ERROR_TYPES.DELETE_ALL_ERROR,
-                message: `Could not delete all items: ${err.message}`,
+                type: ERROR_TYPES.DELETE_BUDGET_ERROR,
+                message: `Could not delete budget: ${err.message}`,
             });
         } finally {
             setLoadingState(LOADING_STATES.IDLE);
         }
     };
 
-    const deleteById = async (id) => {
+    // --- Budget Items ---
+
+    const clearAllItems = async () => {
+        if (!budgetId) return;
         resetErrors();
         try {
-            setLoadingState(LOADING_STATES.DELETING_ONE);
-            await deleteBudgetItem(id);
+            setLoadingState(LOADING_STATES.CLEARING_ALL_ITEMS);
+            await deleteAllBudgetItems(budgetId);
+            setBudgetData({
+                income: [],
+                expense: [],
+                saving: [],
+            });
+        } catch (err) {
+            setError({
+                type: ERROR_TYPES.CLEAR_ALL_ITEMS_ERROR,
+                message: `Could not clear all items: ${err.message}`,
+            });
+        } finally {
+            setLoadingState(LOADING_STATES.IDLE);
+        }
+    };
+
+    const deleteItemById = async (id) => {
+        if (!budgetId) return;
+        resetErrors();
+        try {
+            setLoadingState(LOADING_STATES.DELETING_ITEM);
+            await deleteBudgetItem(budgetId, id);
             setBudgetData((prevData) => {
                 const updatedData = {};
                 for (const key of Object.keys(prevData)) {
@@ -78,7 +107,7 @@ export const useBudgetOperations = () => {
             });
         } catch (err) {
             setError({
-                type: ERROR_TYPES.DELETE_ERROR,
+                type: ERROR_TYPES.DELETE_ITEM_ERROR,
                 message: `Could not delete the item: ${err.message}`,
             });
         } finally {
@@ -87,11 +116,11 @@ export const useBudgetOperations = () => {
     };
 
     const addItem = async (newItem) => {
+        if (!budgetId) return;
         resetErrors();
         try {
             setLoadingState(LOADING_STATES.ADDING);
-
-            const savedItem = await addBudgetItem(newItem);
+            const savedItem = await addBudgetItem(budgetId, newItem);
 
             if (!savedItem.type) {
                 console.error("Missing type on saved item:", savedItem);
@@ -101,9 +130,9 @@ export const useBudgetOperations = () => {
                 const updatedData = { ...prevData };
                 if (!updatedData[savedItem.type]) {
                     console.error(`Unknown budget type: ${savedItem.type}`);
+                    updatedData[savedItem.type] = [];
                 }
-
-                updatedData[savedItem.type] = [...(updatedData[savedItem.type] || []), savedItem];
+                updatedData[savedItem.type] = [...updatedData[savedItem.type], savedItem];
                 return updatedData;
             });
         } catch (err) {
@@ -117,10 +146,11 @@ export const useBudgetOperations = () => {
     };
 
     const updateItem = async (updatedItem) => {
+        if (!budgetId) return;
         resetErrors();
         try {
-            setLoadingState(LOADING_STATES.UPDATING_ONE);
-            await updateBudgetItem(updatedItem);
+            setLoadingState(LOADING_STATES.UPDATING_ITEM);
+            await updateBudgetItem(budgetId, updatedItem._id, updatedItem);
             setBudgetData((prevData) => {
                 const updatedData = { ...prevData };
                 Object.keys(updatedData).forEach((type) => {
@@ -128,13 +158,12 @@ export const useBudgetOperations = () => {
                         item._id === updatedItem._id ? updatedItem : item
                     );
                 });
-
                 return updatedData;
             });
         } catch (err) {
             setError({
                 type: ERROR_TYPES.UPDATE_ERROR,
-                message: `Could not delete update item: ${err.message}`,
+                message: `Could not update item: ${err.message}`,
             });
         } finally {
             setLoadingState(LOADING_STATES.IDLE);
@@ -142,10 +171,11 @@ export const useBudgetOperations = () => {
     };
 
     const updateItemOrder = async (type, newOrderedItems) => {
+        if (!budgetId) return;
         resetErrors();
         try {
             setLoadingState(LOADING_STATES.UPDATING_ORDER);
-            await updateBudgetOrder(type, newOrderedItems);
+            await updateBudgetItemOrder(budgetId, type, newOrderedItems);
             setBudgetData((prev) => {
                 const updatedData = { ...prev };
                 updatedData[type] = updatedData[type].map((item) => {
@@ -170,10 +200,12 @@ export const useBudgetOperations = () => {
         error,
         loadingState,
         isLoading,
-        deleteAll,
-        deleteById,
+        clearAllItems,
+        deleteItemById,
+        deleteEntireBudget,
         addItem,
         updateItem,
         updateItemOrder,
+        setError,
     };
 };

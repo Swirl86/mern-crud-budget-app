@@ -9,9 +9,9 @@ export const useFinancialTableLogic = (budget) => {
     const [deleteId, setDeleteId] = useState(null);
     const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
 
-    const isDeletingAll = budget.loadingState === LOADING_STATES.DELETING_ALL;
-    const isDeleting = budget.loadingState === LOADING_STATES.DELETING_ONE;
-    const isUpdating = budget.loadingState === LOADING_STATES.UPDATING_ONE;
+    const isClearingAllItems = budget.loadingState === LOADING_STATES.CLEARING_ALL_ITEMS;
+    const isDeleting = budget.loadingState === LOADING_STATES.DELETING_ITEM;
+    const isUpdating = budget.loadingState === LOADING_STATES.UPDATING_ITEM;
     const isAdding = budget.loadingState === LOADING_STATES.ADDING;
     const canShowDeleteModal = deleteId && !isSaving && !isDeleting;
 
@@ -53,7 +53,7 @@ export const useFinancialTableLogic = (budget) => {
             }
             setEditedRows([]);
         } catch (error) {
-            setError({ type: ERROR_TYPES.UPDATE, message: error.message });
+            budget.setError({ type: ERROR_TYPES.UPDATE_ERROR, message: error.message });
         } finally {
             setIsSaving(false);
         }
@@ -67,7 +67,7 @@ export const useFinancialTableLogic = (budget) => {
             const newItem = createDefaultBudgetItemWithType(type, lastOrder);
             await budget.addItem(newItem);
         } catch (error) {
-            setError({ type: ERROR_TYPES.ADD_ERROR, message: error.message });
+            budget.setError({ type: ERROR_TYPES.ADD_ERROR, message: error.message });
         } finally {
             setIsSaving(false);
         }
@@ -80,9 +80,9 @@ export const useFinancialTableLogic = (budget) => {
     const confirmDelete = async () => {
         try {
             setIsSaving(true);
-            await budget.deleteById(deleteId);
+            await budget.deleteItemById(deleteId);
         } catch (error) {
-            setError({ type: ERROR_TYPES.DELETE_ERROR, message: error.message });
+            budget.setError({ type: ERROR_TYPES.DELETE_ITEM_ERROR, message: error.message });
         } finally {
             setIsSaving(false);
             closeDeleteConfirm();
@@ -96,10 +96,10 @@ export const useFinancialTableLogic = (budget) => {
     const confirmDeleteAll = async () => {
         try {
             setIsSaving(true);
-            await budget.deleteAll();
+            await budget.deleteEntireBudget();
         } catch (error) {
             budget.setError({
-                type: ERROR_TYPES.DELETE_ALL_ERROR,
+                type: ERROR_TYPES.CLEAR_ALL_ITEMS_ERROR,
                 message: error.message,
             });
         } finally {
@@ -136,7 +136,7 @@ export const useFinancialTableLogic = (budget) => {
         openDeleteConfirm,
         closeDeleteConfirm,
         activeDroppableId,
-        isDeletingAll,
+        isClearingAllItems,
         showDeleteAllModal,
         openDeleteAllConfirm,
         closeDeleteAllConfirm,

@@ -1,8 +1,8 @@
-import BudgetSection from "@/components/table/BudgetSection.jsx";
+import BudgetSection from "@/components/table/BudgetSection";
 import { useBudget } from "@/context/BudgetContext";
 import OverviewHeader from "@components/OverviewHeader";
 import { DragDropContext } from "@hello-pangea/dnd";
-import { useFinancialTableLogic } from "@hooks/useFinancialTableLogic.js";
+import { useFinancialTableLogic } from "@hooks/useFinancialTableLogic";
 import DeleteConfirmModal from "@ui/DeleteConfirmModal";
 import ErrorMessage from "@ui/ErrorMessage";
 import {

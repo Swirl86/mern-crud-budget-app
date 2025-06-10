@@ -1,22 +1,7 @@
 import { useState } from "react";
 import { FaChevronDown, FaChevronUp, FaPlus } from "react-icons/fa";
 
-const dummyBudgets = [
-    "Budget 2020",
-    "Budget 2021",
-    "Budget 2022",
-    "Budget 2023",
-    "Budget 2024",
-    "Semesterbudget",
-    "Väldigt Långt Namn På En Budget Som Måste Trunceras",
-    "Sparande",
-    "Matbudget",
-    "Extraresor",
-    "Julklappar",
-    "Budget 2025",
-];
-
-const BottomBar = () => {
+const BottomBar = ({ budgets, selectedBudgetId, onSelectBudget, onCreateBudget }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const toggleExpanded = () => setIsExpanded((prev) => !prev);
 
@@ -35,20 +20,31 @@ const BottomBar = () => {
                         <button
                             className="min-w-[120px] max-w-[120px] px-3 py-2 bg-green-600 text-white text-sm font-medium rounded shadow flex items-center justify-center hover:bg-green-700 transition"
                             title="Create an empty budget"
+                            onClick={onCreateBudget}
                         >
                             <FaPlus className="mr-1" /> Ny
                         </button>
                     )}
+
                     {isExpanded &&
-                        dummyBudgets.map((title, index) => (
-                            <div
-                                key={index}
-                                className="min-w-[120px] max-w-[120px] px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded shadow truncate whitespace-nowrap cursor-pointer hover:bg-blue-700 transition"
-                                title={title}
-                            >
-                                {title}
-                            </div>
-                        ))}
+                        budgets.map((budget) => {
+                            const isSelected = budget._id === selectedBudgetId;
+                            return (
+                                <div
+                                    key={budget._id}
+                                    className={`min-w-[120px] max-w-[120px] px-3 py-2 text-sm font-medium rounded shadow truncate whitespace-nowrap cursor-pointer transition
+                    ${
+                        isSelected
+                            ? "bg-blue-800 text-white"
+                            : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                                    title={budget.title}
+                                    onClick={() => onSelectBudget(budget._id)}
+                                >
+                                    {budget.title}
+                                </div>
+                            );
+                        })}
                 </div>
 
                 <button

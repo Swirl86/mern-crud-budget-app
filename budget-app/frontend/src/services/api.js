@@ -1,69 +1,107 @@
-import axios from "axios";
+import { budgetItemsApi, budgetsApi } from "./apiClients";
 
-const BUDGET_API_BASE_URL = import.meta.env.VITE_BUDGET_API_BASE_URL;
+// --- Budgets ---
 
-const api = axios.create({
-    baseURL: BUDGET_API_BASE_URL,
-    headers: {
-        "Content-Type": "application/json",
-    },
-});
+export const fetchAllBudgets = async () => {
+    const response = await budgetsApi.get("/");
+    return response.data;
+};
 
-export const fetchBudgetItems = async () => {
+export const fetchBudgetById = async (budgetId) => {
     try {
-        const response = await api.get("/");
+        const response = await budgetsApi.get(`/${budgetId}`);
         return response.data;
     } catch (error) {
-        console.error("Could not fetch budgetdata", error);
+        console.error("Could not fetch budget", error);
         throw error;
     }
 };
 
-export const addBudgetItem = async (budgetItem) => {
+export const createBudget = async (budget) => {
     try {
-        const response = await api.post("/", budgetItem);
+        const response = await budgetsApi.post("/", budget);
         return response.data;
     } catch (error) {
-        console.error("Could not add budgetdata", error);
+        console.error("Could not create budget", error);
         throw error;
     }
 };
 
-export const updateBudgetItem = async (budgetItem) => {
+export const deleteBudget = async (budgetId) => {
     try {
-        const response = await api.patch(`/${budgetItem._id}`, budgetItem);
-        return response.data;
-    } catch (err) {
-        console.error("Could not update budgetdata", err);
-        throw new Error(err.response?.data?.message || err.message);
+        await budgetsApi.delete(`/${budgetId}`);
+    } catch (error) {
+        console.error("Could not delete budget", error);
+        throw error;
     }
 };
 
-export const updateBudgetOrder = async (type, newOrderedItems) => {
+// --- Budget Items ---
+
+export const addBudgetItem = async (budgetId, item) => {
     try {
-        const response = await api.patch(`/update-order/${type}`, newOrderedItems);
+        const response = await budgetItemsApi.post(`/${budgetId}/items`, item);
         return response.data;
     } catch (error) {
-        console.error("Could not update budget item order", error);
-        throw new Error(error.response ? error.response.data.message : error.message);
+        console.error("Could not add budget item", error);
+        throw error;
     }
 };
 
-export const deleteAllBudgetItems = async () => {
-    await api.delete("/delete-all");
+export const updateBudgetItem = async (budgetId, itemId, item) => {
+    try {
+        const response = await budgetItemsApi.patch(`/${budgetId}/items/${itemId}`, item);
+        return response.data;
+    } catch (error) {
+        console.error("Could not update budget item", error);
+        throw error;
+    }
 };
 
-export const deleteBudgetItem = async (id) => {
-    await api.delete(`/${id}`);
+export const updateBudgetItemOrder = async (budgetId, type, newOrder) => {
+    try {
+        const response = await budgetItemsApi.patch(
+            `/${budgetId}/items/update-order/${type}`,
+            newOrder
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Could not update item order", error);
+        throw error;
+    }
+};
+
+export const deleteBudgetItem = async (budgetId, itemId) => {
+    try {
+        await budgetItemsApi.delete(`/${budgetId}/items/${itemId}`);
+    } catch (error) {
+        console.error("Could not delete item", error);
+        throw error;
+    }
+};
+
+export const deleteAllBudgetItems = async (budgetId) => {
+    try {
+        const response = await budgetItemsApi.delete(`/${budgetId}/items`);
+        if (!response.status.toString().startsWith("2")) {
+            throw new Error("Failed to delete all budget items");
+        }
+    } catch (error) {
+        console.error("Could not delete all budget items", error);
+        throw error;
+    }
 };
 
 const budgetService = {
-    fetchBudgetItems,
+    fetchAllBudgets,
+    fetchBudgetById,
+    createBudget,
+    deleteBudget,
     addBudgetItem,
     updateBudgetItem,
-    updateBudgetOrder,
-    deleteAllBudgetItems,
+    updateBudgetItemOrder,
     deleteBudgetItem,
+    deleteAllBudgetItems,
 };
 
 export default budgetService;
