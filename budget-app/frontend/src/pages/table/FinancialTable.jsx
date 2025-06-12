@@ -57,7 +57,7 @@ const FinancialTable = () => {
                 <DeleteConfirmModal
                     onConfirm={confirmDeleteAll}
                     onCancel={closeDeleteAllConfirm}
-                    text="Är du säker på att du vill ta bort ALLA rader? Det går inte att ångra."
+                    text="Är du säker på att du vill ta bort HELA denna budget? Det går inte att ångra."
                 />
             )}
 

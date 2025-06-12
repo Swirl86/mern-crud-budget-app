@@ -3,7 +3,6 @@ import { splitByType } from "@/utils/helpers";
 import {
     addBudgetItem,
     deleteAllBudgetItems,
-    deleteBudget,
     deleteBudgetItem,
     fetchBudgetById,
     updateBudgetItem,
@@ -11,7 +10,7 @@ import {
 } from "@services/api";
 import { useEffect, useState } from "react";
 
-export const useBudgetOperations = (budgetId) => {
+export const useBudgetOperations = (budgetId, onDeleteBudget) => {
     const [budgetData, setBudgetData] = useState({
         income: [],
         expense: [],
@@ -57,7 +56,7 @@ export const useBudgetOperations = (budgetId) => {
         resetErrors();
         try {
             setLoadingState(LOADING_STATES.DELETING_BUDGET);
-            await deleteBudget(budgetId);
+            await onDeleteBudget(budgetId);
             setBudgetData({ income: [], expense: [], saving: [] });
         } catch (err) {
             setError({

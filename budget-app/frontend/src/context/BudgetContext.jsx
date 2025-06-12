@@ -18,8 +18,8 @@ const BudgetContext = createContext({
     updateItemOrder: () => {},
 });
 
-export const BudgetProvider = ({ children, budgetId }) => {
-    const budgetOperations = useBudgetOperations(budgetId);
+export const BudgetProvider = ({ children, budgetId, onDeleteBudget }) => {
+    const budgetOperations = useBudgetOperations(budgetId, onDeleteBudget);
     return <BudgetContext.Provider value={budgetOperations}>{children}</BudgetContext.Provider>;
 };
 

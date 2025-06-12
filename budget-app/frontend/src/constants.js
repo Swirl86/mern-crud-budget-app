@@ -57,3 +57,5 @@ export const DEFAULT_BUDGET = {
     title: "Ny budget",
     items: [],
 };
+
+export const LOCAL_STORAGE_KEY = "activeBudgetId";
