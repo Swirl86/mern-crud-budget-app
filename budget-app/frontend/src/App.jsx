@@ -15,7 +15,13 @@ const App = () => {
         const fetchBudgets = async () => {
             try {
                 const data = await budgetService.fetchAllBudgets();
-                const sorted = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                let sorted = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                if (sorted.length === 0) {
+                    const newBudget = await budgetService.createBudget(DEFAULT_BUDGET);
+                    sorted = [newBudget];
+                }
+
                 setBudgets(sorted);
 
                 const savedId = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -23,7 +29,7 @@ const App = () => {
 
                 if (isValidSavedId) {
                     setSelectedBudgetId(savedId);
-                } else if (sorted.length > 0) {
+                } else {
                     setSelectedBudgetId(sorted[0]._id);
                     localStorage.setItem(LOCAL_STORAGE_KEY, sorted[0]._id);
                 }
@@ -54,16 +60,18 @@ const App = () => {
         try {
             await budgetService.deleteBudget(budgetIdToDelete);
             const updated = budgets.filter((b) => b._id !== budgetIdToDelete);
-            setBudgets(updated);
 
-            if (budgetIdToDelete === selectedBudgetId) {
-                const newActive = updated[0]?._id || null;
-                setSelectedBudgetId(newActive);
-
-                if (newActive) {
+            if (updated.length === 0) {
+                const newBudget = await budgetService.createBudget(DEFAULT_BUDGET);
+                setBudgets([newBudget]);
+                setSelectedBudgetId(newBudget._id);
+                localStorage.setItem(LOCAL_STORAGE_KEY, newBudget._id);
+            } else {
+                setBudgets(updated);
+                if (budgetIdToDelete === selectedBudgetId) {
+                    const newActive = updated[0]._id;
+                    setSelectedBudgetId(newActive);
                     localStorage.setItem(LOCAL_STORAGE_KEY, newActive);
-                } else {
-                    localStorage.removeItem(LOCAL_STORAGE_KEY);
                 }
             }
         } catch (error) {
