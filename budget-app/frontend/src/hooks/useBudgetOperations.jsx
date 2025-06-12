@@ -5,13 +5,15 @@ import {
     deleteAllBudgetItems,
     deleteBudgetItem,
     fetchBudgetById,
+    updateBudget,
     updateBudgetItem,
     updateBudgetItemOrder,
 } from "@services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const useBudgetOperations = (budgetId, onDeleteBudget) => {
     const [budgetData, setBudgetData] = useState({
+        title: "",
         income: [],
         expense: [],
         saving: [],
@@ -33,6 +35,7 @@ export const useBudgetOperations = (budgetId, onDeleteBudget) => {
             const result = await fetchBudgetById(budgetId);
             const { incomeData, expenseData, savingsData } = splitByType(result.items);
             setBudgetData({
+                title: result.title,
                 income: incomeData,
                 expense: expenseData,
                 saving: savingsData,
@@ -62,6 +65,22 @@ export const useBudgetOperations = (budgetId, onDeleteBudget) => {
             setError({
                 type: ERROR_TYPES.DELETE_BUDGET_ERROR,
                 message: `Could not delete budget: ${err.message}`,
+            });
+        } finally {
+            setLoadingState(LOADING_STATES.IDLE);
+        }
+    };
+
+    const saveBudgetTitle = async (newTitle) => {
+        if (!budgetId) return;
+        resetErrors();
+        try {
+            setLoadingState(LOADING_STATES.SAVING);
+            await updateBudget(budgetId, { title: newTitle });
+        } catch (err) {
+            setError({
+                type: ERROR_TYPES.SAVE,
+                message: `Could not save budget title: ${err.message}`,
             });
         } finally {
             setLoadingState(LOADING_STATES.IDLE);
@@ -194,17 +213,21 @@ export const useBudgetOperations = (budgetId, onDeleteBudget) => {
         }
     };
 
-    return {
-        budgetData,
-        error,
-        loadingState,
-        isLoading,
-        clearAllItems,
-        deleteItemById,
-        deleteEntireBudget,
-        addItem,
-        updateItem,
-        updateItemOrder,
-        setError,
-    };
+    return useMemo(
+        () => ({
+            budgetData,
+            error,
+            loadingState,
+            isLoading,
+            clearAllItems,
+            deleteItemById,
+            deleteEntireBudget,
+            saveBudgetTitle,
+            addItem,
+            updateItem,
+            updateItemOrder,
+            setError,
+        }),
+        [budgetData, error, loadingState, isLoading]
+    );
 };

@@ -4,7 +4,7 @@ import BottomBar from "@components/BottomBar";
 import Footer from "@components/Footer";
 import Header from "@components/Header";
 import { BudgetProvider } from "@context/BudgetContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Home from "./pages/Home";
 
 const App = () => {
@@ -56,28 +56,31 @@ const App = () => {
         }
     };
 
-    const handleDeleteBudget = async (budgetIdToDelete) => {
-        try {
-            await budgetService.deleteBudget(budgetIdToDelete);
-            const updated = budgets.filter((b) => b._id !== budgetIdToDelete);
+    const handleDeleteBudget = useCallback(
+        async (budgetIdToDelete) => {
+            try {
+                await budgetService.deleteBudget(budgetIdToDelete);
+                const updated = budgets.filter((b) => b._id !== budgetIdToDelete);
 
-            if (updated.length === 0) {
-                const newBudget = await budgetService.createBudget(DEFAULT_BUDGET);
-                setBudgets([newBudget]);
-                setSelectedBudgetId(newBudget._id);
-                localStorage.setItem(LOCAL_STORAGE_KEY, newBudget._id);
-            } else {
-                setBudgets(updated);
-                if (budgetIdToDelete === selectedBudgetId) {
-                    const newActive = updated[0]._id;
-                    setSelectedBudgetId(newActive);
-                    localStorage.setItem(LOCAL_STORAGE_KEY, newActive);
+                if (updated.length === 0) {
+                    const newBudget = await budgetService.createBudget(DEFAULT_BUDGET);
+                    setBudgets([newBudget]);
+                    setSelectedBudgetId(newBudget._id);
+                    localStorage.setItem(LOCAL_STORAGE_KEY, newBudget._id);
+                } else {
+                    setBudgets(updated);
+                    if (budgetIdToDelete === selectedBudgetId) {
+                        const newActive = updated[0]._id;
+                        setSelectedBudgetId(newActive);
+                        localStorage.setItem(LOCAL_STORAGE_KEY, newActive);
+                    }
                 }
+            } catch (error) {
+                console.error("Failed to delete budget", error);
             }
-        } catch (error) {
-            console.error("Failed to delete budget", error);
-        }
-    };
+        },
+        [budgets, selectedBudgetId]
+    );
 
     return (
         <div className="flex flex-col min-h-screen">

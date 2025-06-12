@@ -4,6 +4,7 @@ import { createContext, useContext } from "react";
 
 const BudgetContext = createContext({
     budgetData: {
+        title: "",
         income: [],
         expense: [],
         saving: [],
@@ -23,4 +24,6 @@ export const BudgetProvider = ({ children, budgetId, onDeleteBudget }) => {
     return <BudgetContext.Provider value={budgetOperations}>{children}</BudgetContext.Provider>;
 };
 
-export const useBudget = () => useContext(BudgetContext);
+export const useBudget = () => {
+    return useContext(BudgetContext);
+};

@@ -5,6 +5,7 @@ import { DragDropContext } from "@hello-pangea/dnd";
 import { useFinancialTableLogic } from "@hooks/useFinancialTableLogic";
 import DeleteConfirmModal from "@ui/DeleteConfirmModal";
 import ErrorMessage from "@ui/ErrorMessage";
+import { useEffect, useState } from "react";
 import {
     ExpenseHeader,
     ExpensesFooter,
@@ -22,6 +23,12 @@ const FinancialTable = () => {
         expense: budget.budgetData.expense || [],
         saving: budget.budgetData.saving || [],
     };
+
+    const [title, setTitle] = useState(budget.budgetData.title || " ✏️ ");
+
+    useEffect(() => {
+        setTitle(budget.budgetData.title || " ✏️ ");
+    }, [budget.budgetData.title]);
 
     const {
         isSaving,
@@ -42,9 +49,16 @@ const FinancialTable = () => {
         handleDragEnd,
     } = useFinancialTableLogic(budget);
 
+    const handleSaveTitle = async (newTitle) => {
+        await budget.saveBudgetTitle(newTitle);
+        setTitle(newTitle);
+    };
+
     return (
         <div className="overflow-auto bg-gray-50 rounded-xl shadow-2xl p-6 sm:p-8 w-[95vw] mx-auto">
             <OverviewHeader
+                title={title}
+                onSaveTitle={handleSaveTitle}
                 onSave={handleUpdateAllEdited}
                 isSaving={isSaving}
                 onDelete={openDeleteAllConfirm}

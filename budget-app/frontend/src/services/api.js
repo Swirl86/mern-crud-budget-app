@@ -36,6 +36,16 @@ export const deleteBudget = async (budgetId) => {
     }
 };
 
+export const updateBudget = async (budgetId, updatedData) => {
+    try {
+        const response = await budgetsApi.put(`/${budgetId}`, updatedData);
+        return response.data;
+    } catch (error) {
+        console.error("Could not update budget", error);
+        throw error;
+    }
+};
+
 // --- Budget Items ---
 
 export const addBudgetItem = async (budgetId, item) => {
@@ -97,6 +107,7 @@ const budgetService = {
     fetchBudgetById,
     createBudget,
     deleteBudget,
+    updateBudget,
     addBudgetItem,
     updateBudgetItem,
     updateBudgetItemOrder,
