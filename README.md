@@ -1,12 +1,12 @@
 # 💰 Budget Management App
 
-This project is a **MERN** (MongoDB, Express, React, Node.js) stack application that I created as part of my personal learning journey. The goal of this project is to:
+This is a full-stack budgeting application built with the **MERN** (MongoDB, Express, React, Node.js) as part of my personal learning journey. The app helps users manage their personal finances by adding, viewing, editing, and deleting budget rows for income, expenses, and savings.
 
-- Refresh my full-stack development skills
-- Learn more about building full-stack applications using the MERN stack
-- Deepen my understanding of **Tailwind CSS** for modern, responsive designs
+## 🎯 My Goals with this project
+- Refresh and strengthen my full-stack development skills
+- Gain deeper knowledge of building full-stack applications using the MERN stack
+- Improve UI design skills with modern, responsive styling using Tailwind CSS
 
-The app allows users to manage their personal finances by adding, viewing, editing, and deleting budget rows, as well as tracking income, expenses, and savings.
 
 ## ⚙️ Tech Stack
 - **Frontend**: React (Vite), Tailwind CSS
@@ -15,18 +15,19 @@ The app allows users to manage their personal finances by adding, viewing, editi
 - **Drag-and-Drop**: react-beautiful-dnd
 
 ## 🚀 Features
-- Add, edit, and delete income, expense, and savings rows
+- Multiple budgets: Create and switch between separate budgets with individual rows and titles
+- Edit the budget title directly in the interface
+- Add, edit, and delete rows for income, expenses, and savings
 - Drag-and-drop reordering of rows per category
 - Save changes manually or via:
   - Auto-save every 30 seconds
   - Keyboard shortcut (Ctrl + S or Enter)
-- Confirm deletion of a single row with a modal
-- Confirm deletion of all data with a modal
-- Responsive and modern UI with Tailwind CSS
-- Error handling and loading indicators
+- Confirmation modals for deleting single rows or clearing all data
+- Responsive, modern UI styled with Tailwind CSS
+- Loading states and error handling for smooth user experience
 
 ## 📌 Planned Features
-- User authentication (login/signup)
-- Multiple budgets
 - Export data to CSV or PDF
-- Monthly/weekly financial summaries
+- Financial summaries with monthly and weekly views
+- Drag-and-drop reordering of budgets in the bottom bar
+- Quick row input: Fill in a value for one month and optionally copy it across all months in the row
