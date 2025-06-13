@@ -1,7 +1,9 @@
+import { useBudgets } from "@context/BudgetsContext";
 import { useState } from "react";
 import { FaChevronDown, FaChevronUp, FaPlus } from "react-icons/fa";
 
-const BottomBar = ({ budgets, selectedBudgetId, onSelectBudget, onCreateBudget }) => {
+const BottomBar = () => {
+    const { budgets, selectedBudgetId, selectBudget, createBudget } = useBudgets();
     const [isExpanded, setIsExpanded] = useState(true);
     const toggleExpanded = () => setIsExpanded((prev) => !prev);
 
@@ -20,7 +22,7 @@ const BottomBar = ({ budgets, selectedBudgetId, onSelectBudget, onCreateBudget }
                         <button
                             className="min-w-[120px] max-w-[120px] px-3 py-2 bg-green-600 text-white text-sm font-medium rounded shadow flex items-center justify-center hover:bg-green-700 transition"
                             title="Create an empty budget"
-                            onClick={onCreateBudget}
+                            onClick={createBudget}
                         >
                             <FaPlus className="mr-1" /> Ny
                         </button>
@@ -39,7 +41,7 @@ const BottomBar = ({ budgets, selectedBudgetId, onSelectBudget, onCreateBudget }
                             : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                                     title={budget.title}
-                                    onClick={() => onSelectBudget(budget._id)}
+                                    onClick={() => selectBudget(budget._id)}
                                 >
                                     {budget.title}
                                 </div>

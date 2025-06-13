@@ -25,8 +25,6 @@ export const useBudgetOperations = (budgetId, onDeleteBudget) => {
 
     const resetErrors = () => setError(null);
 
-    // --- Budgets ---
-
     const loadBudgetData = async () => {
         if (!budgetId) return;
         resetErrors();
@@ -86,8 +84,6 @@ export const useBudgetOperations = (budgetId, onDeleteBudget) => {
             setLoadingState(LOADING_STATES.IDLE);
         }
     };
-
-    // --- Budget Items ---
 
     const clearAllItems = async () => {
         if (!budgetId) return;
@@ -171,11 +167,16 @@ export const useBudgetOperations = (budgetId, onDeleteBudget) => {
             await updateBudgetItem(budgetId, updatedItem._id, updatedItem);
             setBudgetData((prevData) => {
                 const updatedData = { ...prevData };
+
                 Object.keys(updatedData).forEach((type) => {
-                    updatedData[type] = updatedData[type].map((item) =>
-                        item._id === updatedItem._id ? updatedItem : item
-                    );
+                    const items = updatedData[type];
+                    if (Array.isArray(items)) {
+                        updatedData[type] = items.map((item) =>
+                            item._id === updatedItem._id ? updatedItem : item
+                        );
+                    }
                 });
+
                 return updatedData;
             });
         } catch (err) {

@@ -24,6 +24,4 @@ export const BudgetProvider = ({ children, budgetId, onDeleteBudget }) => {
     return <BudgetContext.Provider value={budgetOperations}>{children}</BudgetContext.Provider>;
 };
 
-export const useBudget = () => {
-    return useContext(BudgetContext);
-};
+export const useBudget = () => useContext(BudgetContext);

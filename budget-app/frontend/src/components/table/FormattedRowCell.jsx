@@ -21,8 +21,9 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
     };
 
     const handleChange = (e) => {
-        const newValue = e.target.value.replace(",", ".");
+        let newValue = e.target.value;
         if (/^\d*\.?\d*$/.test(newValue)) {
+            newValue = newValue.replace(/^0+(?=\d)/, "");
             setInputValue(newValue);
         }
     };
