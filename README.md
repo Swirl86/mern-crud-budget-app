@@ -25,9 +25,9 @@ This is a full-stack budgeting application built with the **MERN** (MongoDB, Exp
 - Confirmation modals for deleting single rows or clearing all data
 - Responsive, modern UI styled with Tailwind CSS
 - Loading states and error handling for smooth user experience
+- Quick row input: Fill in a value for one month and optionally copy it across all months in the row
 
 ## 📌 Planned Features
 - Export data to CSV or PDF
 - Financial summaries with monthly and weekly views
 - Drag-and-drop reordering of budgets in the bottom bar
-- Quick row input: Fill in a value for one month and optionally copy it across all months in the row
