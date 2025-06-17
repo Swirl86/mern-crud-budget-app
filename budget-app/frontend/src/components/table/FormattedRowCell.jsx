@@ -1,10 +1,18 @@
 import { formatSEK } from "@utils/format";
 import clsx from "clsx";
 import { useState } from "react";
+import { FaCopy } from "react-icons/fa";
 
-const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = () => {} }) => {
+const FormattedRowCell = ({
+    value,
+    textColor,
+    editable = false,
+    onValueChange = () => {},
+    onCopyToAll = null,
+}) => {
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState(value || "0");
+    const [isHovered, setIsHovered] = useState(false);
 
     const handleClick = () => {
         if (editable) {
@@ -44,11 +52,13 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
     return (
         <td
             className={clsx(
-                "px-4 py-2 border border-gray-300 leading-tight w-[120px] min-w-0",
+                "px-4 py-2 border border-gray-300 leading-tight w-[120px] min-w-0 relative",
                 textColor,
                 editable && "cursor-pointer hover:bg-gray-100 hover:border-blue-500"
             )}
             onClick={handleClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
             {isEditing ? (
                 <input
@@ -63,7 +73,22 @@ const FormattedRowCell = ({ value, textColor, editable = false, onValueChange = 
                     min="0"
                 />
             ) : (
-                <span>{value ? formatSEK(value) : "0"}</span>
+                <>
+                    <span>{value ? formatSEK(value) : "0"}</span>
+
+                    {onCopyToAll && isHovered && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onCopyToAll(value);
+                            }}
+                            className="absolute top-1 right-1 text-blue-500 hover:text-blue-700"
+                            title="Kopiera värde till alla månader"
+                        >
+                            <FaCopy size={14} />
+                        </button>
+                    )}
+                </>
             )}
         </td>
     );

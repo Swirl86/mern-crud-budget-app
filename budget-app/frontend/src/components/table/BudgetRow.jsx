@@ -33,6 +33,14 @@ const BudgetRow = ({ row, type, onUpdateRow, openDeleteConfirm, dragHandleProps,
         });
     };
 
+    const copyValueToAllMonths = (value) => {
+        const updatedAmounts = Object.fromEntries(
+            Object.keys(editedAmounts).map((month) => [month, value])
+        );
+        setEditedAmounts(updatedAmounts);
+        onUpdateRow({ ...row, amounts: updatedAmounts });
+    };
+
     const categoryCellClasses = clsx(
         "px-4 py-2 border border-gray-300 font-semibold leading-tight w-[250px] min-w-0",
         isDragging
@@ -87,6 +95,7 @@ const BudgetRow = ({ row, type, onUpdateRow, openDeleteConfirm, dragHandleProps,
                     textColor={textColor}
                     editable={true}
                     onValueChange={(newValue) => handleAmountChange(month, newValue)}
+                    onCopyToAll={(value) => copyValueToAllMonths(value)}
                 />
             ))}
 

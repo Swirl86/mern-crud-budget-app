@@ -10,10 +10,12 @@ const OverviewHeader = ({ title, onSaveTitle, onSave, isSaving, onDelete, isDele
                     <EditableTitle initialTitle={title} onSaveTitle={onSaveTitle} />
                 </div>
 
-                <FaSave
-                    onClick={onSave}
-                    className="ml-2 w-7 h-7 text-green-600 cursor-pointer hover:text-green-700 transition-colors"
-                />
+                <span title="Spara ändringar">
+                    <FaSave
+                        onClick={onSave}
+                        className="ml-2 w-7 h-7 text-green-600 cursor-pointer hover:text-green-700 transition-colors"
+                    />
+                </span>
                 {isSaving && <SavingIndicator />}
             </div>
             <button

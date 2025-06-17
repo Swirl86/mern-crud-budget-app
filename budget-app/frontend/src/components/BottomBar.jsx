@@ -21,7 +21,7 @@ const BottomBar = () => {
                     {isExpanded && (
                         <button
                             className="min-w-[130px] px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg shadow-md flex items-center justify-center hover:bg-green-700 transition whitespace-nowrap"
-                            title="Create an empty budget"
+                            title="Skapa en tom budget"
                             onClick={createBudget}
                         >
                             <FaPlus className="mr-2" /> Ny Budget
