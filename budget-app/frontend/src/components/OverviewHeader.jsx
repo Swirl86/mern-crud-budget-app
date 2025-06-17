@@ -1,8 +1,16 @@
 import EditableTitle from "@components/table/EditableTitle";
 import SavingIndicator from "@components/ui/SavingIndicator";
-import { FaSave } from "react-icons/fa";
+import { FaDownload, FaSave } from "react-icons/fa";
 
-const OverviewHeader = ({ title, onSaveTitle, onSave, isSaving, onDelete, isDeleting }) => {
+const OverviewHeader = ({
+    title,
+    onSaveTitle,
+    onSave,
+    isSaving,
+    onDelete,
+    isDeleting,
+    onDownloadClick,
+}) => {
     return (
         <div className="flex justify-between items-center mb-6 w-full">
             <div className="flex items-center gap-3 min-w-0 w-full">
@@ -17,6 +25,11 @@ const OverviewHeader = ({ title, onSaveTitle, onSave, isSaving, onDelete, isDele
                     />
                 </span>
                 {isSaving && <SavingIndicator />}
+                <FaDownload
+                    onClick={onDownloadClick}
+                    className="ml-4 w-7 h-7 cursor-pointer text-blue-600 hover:text-blue-700 transition-colors"
+                    title="Ladda ner din budget"
+                />
             </div>
             <button
                 onClick={onDelete}

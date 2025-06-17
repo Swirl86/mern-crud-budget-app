@@ -1,6 +1,8 @@
 import BudgetSection from "@/components/table/BudgetSection";
 import { useBudget } from "@/context/BudgetContext";
+import { exportToCSV, exportToExcel, exportToPDF } from "@/utils/budgetExportUtils";
 import OverviewHeader from "@components/OverviewHeader";
+import DownloadDialog from "@components/ui/DownloadDialog";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useFinancialTableLogic } from "@hooks/useFinancialTableLogic";
 import DeleteConfirmModal from "@ui/DeleteConfirmModal";
@@ -25,6 +27,7 @@ const FinancialTable = () => {
     };
 
     const [title, setTitle] = useState(budget.budgetData.title || " ✏️ ");
+    const [showDownloadDialog, setShowDownloadDialog] = useState(false);
 
     useEffect(() => {
         setTitle(budget.budgetData.title || " ✏️ ");
@@ -54,6 +57,29 @@ const FinancialTable = () => {
         setTitle(newTitle);
     };
 
+    const handleDownloadClick = () => {
+        setShowDownloadDialog(true);
+    };
+
+    const handleCloseDownloadDialog = () => {
+        setShowDownloadDialog(false);
+    };
+
+    const runExportToCSV = () => {
+        exportToCSV(budget.budgetData);
+        setShowDownloadDialog(false);
+    };
+
+    const runExportToPDF = () => {
+        exportToPDF(budget.budgetData);
+        setShowDownloadDialog(false);
+    };
+
+    const runExportToExcel = () => {
+        exportToExcel(budget.budgetData);
+        setShowDownloadDialog(false);
+    };
+
     return (
         <div className="overflow-auto bg-gray-50 rounded-xl shadow-2xl p-6 sm:p-8 w-[95vw] mx-auto">
             <OverviewHeader
@@ -63,7 +89,17 @@ const FinancialTable = () => {
                 isSaving={isSaving}
                 onDelete={openDeleteAllConfirm}
                 isDeleting={isDeletingAll}
+                onDownloadClick={handleDownloadClick}
             />
+
+            {showDownloadDialog && (
+                <DownloadDialog
+                    onClose={handleCloseDownloadDialog}
+                    onExportCSV={runExportToCSV}
+                    onExportPDF={runExportToPDF}
+                    onExportExcel={runExportToExcel}
+                />
+            )}
 
             {budget.error && <ErrorMessage message={budget.error.message} />}
 
